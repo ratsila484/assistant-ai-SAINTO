@@ -1,0 +1,16 @@
+<div class="chat-container">
+    <div class="chat-header">Aide assistant commerciale SAINTO</div>
+    <div class="chat-box" #chatBox>
+        <p style="display: flex; justify-content: center; color: #3333337e;">Soyez le bienvenue chez nous</p>
+        @for (msg of messages; track $index) {
+        <div [ngClass]="{'chat-message': true, 'user-message': msg.from === 'user', 'bot-message': msg.from === 'bot'}">
+            {{ msg.text }}
+        </div>
+        }
+    </div>
+    <div class="chat-input">
+        <input type="text" (keyup.enter)="envoyerMessage()" [(ngModel)]="userInput"
+            placeholder="Écrivez un message..." />
+        <button (click)="envoyerMessage()">Envoyer</button>
+    </div>
+</div>
