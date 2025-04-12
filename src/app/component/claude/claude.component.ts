@@ -251,7 +251,7 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
     }
   }
 
-  // Gérer l'appel de fonction
+  
   private async handleFunctionCall(functionCall: any, initialResponse: any) {
     const functionName = functionCall.name;
     const args = functionCall.args;
@@ -260,21 +260,10 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
 
     // Exécuter la fonction correspondante
     if (functionName === 'passerCommande') {
-      // Calculer le prix si non fourni
       let prix = args.prix;
       if (prix === undefined || prix === null) {
-        try {
-          // Tenter de calculer le prix
-          const prixCalcule = this.calculerPrix(args.produit, args.quantite);
-          if (prixCalcule && prixCalcule.success) {
-            prix = prixCalcule.prixTotal;
-          } else {
-            prix = 0; // Valeur par défaut si le calcul échoue
-          }
-        } catch (e) {
-          prix = 0; // En cas d'erreur
-          console.error("Erreur lors du calcul automatique du prix:", e);
-        }
+        // Prix non fourni - le calcul sera fait dans passerCommande
+        prix = null;
       }
 
       functionResponse = this.passerCommande(
@@ -287,20 +276,11 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
         args.telephone
       );
 
-      // Afficher un message sur la commande dans la conversation avec vérification
-      let prixMessage = '';
-      if (prix !== undefined && prix !== null) {
-        const prixTTC = prix * 1.2; // Ajouter TVA 20%
-        prixMessage = ` au prix de ${prixTTC.toLocaleString('fr-FR')} Ar TTC`;
-      }
-
+      // Afficher un message sur la commande dans la conversation
       this.messages.push({
-        text: `Je traite votre commande de ${args.quantite} ${args.produit} pour ${args.nomClient}${prixMessage}...`,
+        text: `Je traite votre commande pour ${args.nomClient}. Un devis détaillé va s'afficher...`,
         from: 'bot'
       });
-
-      // Générer et afficher le devis
-      this.genererDevis(args.produit, args.quantite, prix || 0, args.nomClient, args.email, args.adresse, args.telephone);
     }
     else if (functionName === 'calculerPrix') {
       functionResponse = this.calculerPrix(args.produit, args.quantite);
@@ -355,167 +335,201 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
     }
   }
 
-  // Fonction pour passer une commande
+  
+  // Modification 1: Mise à jour de la structure de la fonction passerCommande
   private passerCommande(produit: string, quantite: number, prix: number | null, nomClient: string, email: string, adresse: string, telephone: string): any {
-    // Envoyer la commande par email avec le prix
-    this.envoyerCommande(produit, quantite, prix, nomClient, email, adresse, telephone);
+    // Identifier s'il y a plusieurs produits
+    const produitsMultiples = this.extraireProduitsMultiples(produit, quantite);
 
-    // Convertir en TTC si le prix est fourni
-    let prixTTC = 0;
-    if (prix !== null) {
-      prixTTC = prix * 1.2; // Ajouter TVA 20%
+    // Calculer le prix total si nécessaire
+    let prixTotal = prix;
+    if (prixTotal === null || prixTotal === undefined) {
+      prixTotal = 0;
+      for (const item of produitsMultiples) {
+        const prixCalcule = this.calculerPrix(item.produit, item.quantite);
+        if (prixCalcule && prixCalcule.success) {
+          prixTotal += prixCalcule.prixHT;
+        }
+      }
     }
 
-    // Retourner les informations de la commande avec vérification du prix
+    // Envoyer la commande par email
+    this.envoyerCommande(produitsMultiples, prixTotal, nomClient, email, adresse, telephone);
+
+    // Convertir en TTC
+    const prixTTC = prixTotal * 1.2; // Ajouter TVA 20%
+
+    // Générer et afficher le devis
+    this.genererDevis(produitsMultiples, prixTotal, nomClient, email, adresse, telephone);
+
+    // Retourner les informations de la commande
     return {
       success: true,
       numeroCommande: `CMD-${Date.now().toString().slice(-6)}`,
       estimationLivraison: this.getEstimationLivraison(),
-      prixTotal: prixTTC !== null ? prixTTC : "Non spécifié",
+      prixTotal: prixTTC,
       message: "Votre commande a été enregistrée avec succès."
     };
   }
 
-  // // Fonction pour calculer le prix
-  // private calculerPrix(produit: string, quantite: number): any {
-  //   const prixUnitaires: { [key: string]: number } = {
-  //     'SAINTO 1.5L': 2750 * 6, // Prix par pack (6 bouteilles)
-  //     'SAINTO 1L': 1666 * 6,   // Prix par pack (6 bouteilles)
-  //     'SAINTO 0.5L': 1416 * 8, // Prix par pack (8 bouteilles)
-  //     'SAINTO 5L': 5000,       // Prix par bouteille
-  //     'Bonbone 1ere Livraison': 88000,
-  //     'Bonbone recharge': 36166,
-  //     'ICE TEA 1.5L': 8166 * 6, // Prix par pack (6 bouteilles)
-  //     'ICE TEA 0.5L': 3500 * 8  // Prix par pack (8 bouteilles)
-  //   };
+  private extraireProduitsMultiples(produitTexte: string, quantiteTexte: any): Array<{ produit: string, quantite: number }> {
+    const produits: Array<{ produit: string, quantite: number }> = [];
 
-  //   // Vérifier si le produit existe
-  //   if (prixUnitaires[produit] === undefined) {
-  //     return {
-  //       success: false,
-  //       message: "Produit non reconnu. Veuillez vérifier le nom du produit."
-  //     };
-  //   }
+    // Vérifier si c'est une commande multiple (présence de virgules)
+    if (typeof produitTexte === 'string' && produitTexte.includes(',')) {
+      // Séparation des produits par virgules
+      const listeProduits = produitTexte.split(',').map(p => p.trim());
 
-  //   const prixHT = prixUnitaires[produit] * quantite;
-  //   const prixTTC = prixHT * 1.2; // Ajouter TVA 20%
+      // Séparation des quantités si elles sont dans le même format
+      let listeQuantites: number[] = [];
 
-  //   return {
-  //     success: true,
-  //     produit: produit,
-  //     quantite: quantite,
-  //     prixUnitaire: prixUnitaires[produit],
-  //     prixTotal: prixTTC,
-  //     prixHT: prixHT,
-  //     devise: "Ar"
-  //   };
-  // }
-  // Fonction pour calculer le prix
-private calculerPrix(produit: string, quantite: number): any {
-  // Mapping des produits à leurs prix unitaires HT
-  const prixUnitaires: { [key: string]: number } = {
-    // Produits MADO
-    'SAINTO 1.5L': 2750 * 6, // Prix par pack (6 bouteilles)
-    'SAINTO 1L': 1666 * 6,   // Prix par pack (6 bouteilles)
-    'SAINTO 0.5L': 1416 * 8, // Prix par pack (8 bouteilles)
-    'SAINTO 5L': 5000,       // Prix par bouteille
-    'Bonbone 1ere Livraison': 88000,
-    'Bonbone recharge': 36166,
-    'ICE TEA 1.5L pomme ': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 1.5L citron ': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 1.5L peche ': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 0.5L pomme': 3500 * 8,  // Prix par pack (8 bouteilles)
-    'ICE TEA 0.5L citron': 3500 * 8,  // Prix par pack (8 bouteilles)
-    'ICE TEA 0.5L peche': 3500 * 8,  // Prix par pack (8 bouteilles)
-    
-    // Produits GAMO
-    'Eau de javel': 2400,      // Prix en vrac
-    'EAU DE JAVEL 1L': 3300,
-    'EAU DE JAVEL EN VRAC': 2400,
-    'DK vert 1l': 2200,
-    'DK vert en vrac': 2400,
-    'Bnett 1Ltr': 3300,
-    'Bnett en vrac': 2200,
-    'LAVE-VITRE 1L': 3000,
-    'colle blanche ufix 2050 seau de 04 kg': 64000,
-    'colle blanche ufix 2050 seau de 500grs': 8800,
-    'colle blanche ufix 2050 en vrac': 14700,
-    'Colle de bureau UNICOLLE 120 cc': 1600,
-    'Colle de bureau UNICOLLE 30 cc': 1000,
-    'Colle de bureau UNICOLLE 60 cc': 1300,
-    'Colle de bureau UNICOLLE 90 cc': 1500,
-    'colle unicolle en vrac': 6900,
-    'Encaustique CIRABRIL Acajou 400cc': 8100,
-    'Encaustique CIRABRIL Acajou GM': 82300,
-    'Encaustique CIRABRIL AP Neutre 400CC': 9200,
-    'Encaustique CIRABRIL AP Neutre GM': 77500,
-    'Encaustique CIRABRIL Rouge ciment 400C': 8400,
-    'Encaustique CIRABRIL Rouge ciment GM': 77400,
-    'Encaustique CIRABRIL AP Jaune 400CC': 9200,
-    'Encaustique CIRABRIL AP Jaune GM': 77500,
-    'Enduitbat sac de 1 kg': 2500,
-    'Enduitbat sac de 10 kg': 16700,
-    'Enduitbat sac de 2 kg': 4300,
-    'Enduitbat sac de 5 kg': 10300
-  };
+      // Vérifier si quantiteTexte est aussi une liste (chaîne avec virgules)
+      if (typeof quantiteTexte === 'string' && quantiteTexte.includes(',')) {
+        listeQuantites = quantiteTexte.split(',').map(q => parseInt(q.trim(), 10));
+      }
+      // Si c'est un tableau de nombres
+      else if (Array.isArray(quantiteTexte)) {
+        listeQuantites = quantiteTexte;
+      }
+      // Sinon, considérer comme une seule quantité à répartir
+      else {
+        // Appliquer la même quantité à tous les produits
+        listeQuantites = Array(listeProduits.length).fill(parseInt(quantiteTexte, 10) / listeProduits.length);
+      }
 
-  // Normalisation du nom du produit pour recherche insensible à la casse
-  const normalizedProduit = produit.trim().toLowerCase();
-  
-  // Trouver le produit correspondant dans le tableau des prix
-  let prixProduit = 0;
-  let nomProduitExact = '';
-  
-  for (const [nom, prix] of Object.entries(prixUnitaires)) {
-    if (normalizedProduit.includes(nom.toLowerCase()) || nom.toLowerCase().includes(normalizedProduit)) {
-      prixProduit = prix;
-      nomProduitExact = nom;
-      break;
+      // S'assurer que nous avons autant de quantités que de produits
+      while (listeQuantites.length < listeProduits.length) {
+        listeQuantites.push(1); // Valeur par défaut
+      }
+
+      // Créer les objets produit-quantité
+      for (let i = 0; i < listeProduits.length; i++) {
+        produits.push({
+          produit: listeProduits[i],
+          quantite: listeQuantites[i] || 1
+        });
+      }
+    } else {
+      // Cas simple: un seul produit
+      produits.push({
+        produit: produitTexte,
+        quantite: parseInt(quantiteTexte, 10)
+      });
     }
+
+    return produits;
   }
 
-  // Vérifier si le produit existe
-  if (prixProduit === 0) {
+
+  
+  // Fonction pour calculer le prix
+  private calculerPrix(produit: string, quantite: number): any {
+    // Mapping des produits à leurs prix unitaires HT
+    const prixUnitaires: { [key: string]: number } = {
+      // Produits MADO
+      'SAINTO 1.5L': 2750 * 6, // Prix par pack (6 bouteilles)
+      'SAINTO 1L': 1666 * 6,   // Prix par pack (6 bouteilles)
+      'SAINTO 0.5L': 1416 * 8, // Prix par pack (8 bouteilles)
+      'SAINTO 5L': 5000,       // Prix par bouteille
+      'Bonbone 1ere Livraison': 88000,
+      'Bonbone recharge': 36166,
+      'ICE TEA pomme 1.5L  ': 8166 * 6, // Prix par pack (6 bouteilles)
+      'ICE TEA citron 1.5L  ': 8166 * 6, // Prix par pack (6 bouteilles)
+      'ICE TEA peche 1.5L  ': 8166 * 6, // Prix par pack (6 bouteilles)
+      'ICE TEA pomme 0.5L ': 3500 * 8,  // Prix par pack (8 bouteilles)
+      'ICE TEA citron 0.5L ': 3500 * 8,  // Prix par pack (8 bouteilles)
+      'ICE TEA peche 0.5L ': 3500 * 8,  // Prix par pack (8 bouteilles)
+
+      // Produits GAMO
+      'Eau de javel': 2400,      // Prix en vrac
+      'EAU DE JAVEL 1L': 3300,
+      'EAU DE JAVEL EN VRAC': 2400,
+      'DK vert 1l': 2200,
+      'DK vert en vrac': 2400,
+      'Bnett 1Ltr': 3300,
+      'Bnett en vrac': 2200,
+      'LAVE-VITRE 1L': 3000,
+      'colle blanche ufix 2050 seau de 04 kg': 64000,
+      'colle blanche ufix 2050 seau de 500grs': 8800,
+      'colle blanche ufix 2050 en vrac': 14700,
+      'Colle de bureau UNICOLLE 120 cc': 1600,
+      'Colle de bureau UNICOLLE 30 cc': 1000,
+      'Colle de bureau UNICOLLE 60 cc': 1300,
+      'Colle de bureau UNICOLLE 90 cc': 1500,
+      'colle unicolle en vrac': 6900,
+      'Encaustique CIRABRIL Acajou 400cc': 8100,
+      'Encaustique CIRABRIL Acajou GM': 82300,
+      'Encaustique CIRABRIL AP Neutre 400CC': 9200,
+      'Encaustique CIRABRIL AP Neutre GM': 77500,
+      'Encaustique CIRABRIL Rouge ciment 400C': 8400,
+      'Encaustique CIRABRIL Rouge ciment GM': 77400,
+      'Encaustique CIRABRIL AP Jaune 400CC': 9200,
+      'Encaustique CIRABRIL AP Jaune GM': 77500,
+      'Enduitbat sac de 1 kg': 2500,
+      'Enduitbat sac de 10 kg': 16700,
+      'Enduitbat sac de 2 kg': 4300,
+      'Enduitbat sac de 5 kg': 10300
+    };
+
+    // Normalisation du nom du produit pour recherche insensible à la casse
+    const normalizedProduit = produit.trim().toLowerCase();
+
+    // Trouver le produit correspondant dans le tableau des prix
+    let prixProduit = 0;
+    let nomProduitExact = '';
+
+    for (const [nom, prix] of Object.entries(prixUnitaires)) {
+      if (normalizedProduit.includes(nom.toLowerCase()) || nom.toLowerCase().includes(normalizedProduit)) {
+        prixProduit = prix;
+        nomProduitExact = nom;
+        break;
+      }
+    }
+
+    // Vérifier si le produit existe
+    if (prixProduit === 0) {
+      return {
+        success: false,
+        message: "Produit non reconnu. Veuillez vérifier le nom du produit."
+      };
+    }
+
+    const prixHT = prixProduit * quantite;
+    const prixTTC = prixHT * 1.2; // Ajouter TVA 20%
+
     return {
-      success: false,
-      message: "Produit non reconnu. Veuillez vérifier le nom du produit."
+      success: true,
+      produit: nomProduitExact || produit, // Utiliser le nom exact si trouvé
+      quantite: quantite,
+      prixUnitaire: prixProduit,
+      prixTotal: prixTTC,
+      prixHT: prixHT,
+      devise: "Ar"
     };
   }
 
-  const prixHT = prixProduit * quantite;
-  const prixTTC = prixHT * 1.2; // Ajouter TVA 20%
+  
 
-  return {
-    success: true,
-    produit: nomProduitExact || produit, // Utiliser le nom exact si trouvé
-    quantite: quantite,
-    prixUnitaire: prixProduit,
-    prixTotal: prixTTC,
-    prixHT: prixHT,
-    devise: "Ar"
-  };
-}
+  // Modification 4: Mise à jour de la fonction envoyerCommande pour gérer plusieurs articles
+  envoyerCommande(produits: Array<{ produit: string, quantite: number }>, prix: number, nom_client: string, email_client: string, adresse_client: string, numero_tel_client: string) {
+    // Formatage des produits pour l'email
+    let produitsText = '';
+    produits.forEach(item => {
+      produitsText += `- ${item.produit}: ${item.quantite} unité(s)\n`;
+    });
 
-  // Fonction pour envoyer la commande par email
-  envoyerCommande(nom_article: string, nb_article: number, prix: number | null, nom_client: string, email_client: string, adresse_client: string, numero_tel_client: string) {
     // Formatage sécurisé du prix
-    let prixFormateHT = "Non spécifié";
-    let prixFormateTTC = "Non spécifié";
-    
-    if (prix !== undefined && prix !== null) {
-      prixFormateHT = `${prix.toLocaleString('fr-FR')} Ar HT`;
-      const prixTTC = prix * 1.2;
-      prixFormateTTC = `${prixTTC.toLocaleString('fr-FR')} Ar TTC`;
-    }
+    const prixHT = `${prix.toLocaleString('fr-FR')} Ar HT`;
+    const prixTTC = `${(prix * 1.2).toLocaleString('fr-FR')} Ar TTC`;
 
     const templateParams = {
       to: 'tsilavina484@gmail.com',
       subject: 'Nouvelle commande',
       message: `Nouvelle commande :
-Nom article : ${nom_article}
-Quantité : ${nb_article}
-Prix total HT : ${prixFormateHT}
-Prix total TTC : ${prixFormateTTC}
+Articles :
+${produitsText}
+Prix total HT : ${prixHT}
+Prix total TTC : ${prixTTC}
 Client : ${nom_client}
 Email : ${email_client}
 Téléphone : ${numero_tel_client}
@@ -536,17 +550,29 @@ Adresse : ${adresse_client}`
     return true;
   }
 
-  // Fonction pour générer et afficher un devis
-  genererDevis(produit: string, quantite: number, prix: number, nomClient: string, email: string, adresse: string, telephone: string) {
+  
+  // Modification 3: Mise à jour de la fonction genererDevis pour gérer plusieurs articles
+  genererDevis(produits: Array<{ produit: string, quantite: number }>, prixTotalHT: number, nomClient: string, email: string, adresse: string, telephone: string) {
     // Calculer prix TTC
-    const prixHT = prix;
+    const prixHT = prixTotalHT;
     const tva = prixHT * 0.2;
     const prixTTC = prixHT * 1.2;
     const numeroDevis = `DEV-${Date.now().toString().slice(-6)}`;
     const dateEmission = new Date().toLocaleDateString('fr-FR');
     const dateValidite = new Date();
     dateValidite.setDate(dateValidite.getDate() + 30);
-    
+
+    // Créer les articles du devis
+    const articles = produits.map(item => {
+      const prixUnitaire = this.getPrixUnitaire(item.produit);
+      return {
+        designation: item.produit,
+        quantite: item.quantite,
+        prixUnitaireHT: prixUnitaire,
+        totalHT: prixUnitaire * item.quantite
+      };
+    });
+
     // Créer l'objet devis
     this.devisInfo = {
       numeroDevis: numeroDevis,
@@ -558,14 +584,7 @@ Adresse : ${adresse_client}`
         telephone: telephone,
         adresse: adresse
       },
-      articles: [
-        {
-          designation: produit,
-          quantite: quantite,
-          prixUnitaireHT: this.getPrixUnitaire(produit),
-          totalHT: prixHT
-        }
-      ],
+      articles: articles,
       totalHT: prixHT,
       tva: tva,
       totalTTC: prixTTC,
@@ -576,114 +595,97 @@ Adresse : ${adresse_client}`
     this.showDevis = true;
   }
 
-  // Fonction pour récupérer le prix unitaire d'un produit
-  // private getPrixUnitaire(produit: string): number {
-  //   const prixUnitaires: { [key: string]: number } = {
-  //     'SAINTO 1.5L': 2750 * 6, // Prix par pack (6 bouteilles)
-  //     'SAINTO 1L': 1666 * 6,   // Prix par pack (6 bouteilles)
-  //     'SAINTO 0.5L': 1416 * 8, // Prix par pack (8 bouteilles)
-  //     'SAINTO 5L': 5000,       // Prix par bouteille
-  //     'Bonbone 1ere Livraison': 88000,
-  //     'Bonbone recharge': 36166,
-  //     'ICE TEA 1.5L': 8166 * 6, // Prix par pack (6 bouteilles)
-  //     'ICE TEA 0.5L': 3500 * 8  // Prix par pack (8 bouteilles)
-  //   };
-
-  //   return prixUnitaires[produit] || 0;
-  // }
-  // Fonction pour récupérer le prix unitaire d'un produit
-private getPrixUnitaire(produit: string): number {
-  const prixUnitaires: { [key: string]: number } = {
-    // Produits MADO
-    'SAINTO 1.5L': 2750 * 6, // Prix par pack (6 bouteilles)
-    'SAINTO 1L': 1666 * 6,   // Prix par pack (6 bouteilles)
-    'SAINTO 0.5L': 1416 * 8, // Prix par pack (8 bouteilles)
-    'SAINTO 5L': 5000,       // Prix par bouteille
-    'Bonbone 1ere Livraison': 88000,
-    'Bonbone recharge': 36166,
-    'ICE TEA 1.5L pomme ': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 1.5L citron ': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 1.5L peche ': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 0.5L pomme': 3500 * 8,  // Prix par pack (8 bouteilles)
-    'ICE TEA 0.5L citron': 3500 * 8,  // Prix par pack (8 bouteilles)
-    'ICE TEA 0.5L peche': 3500 * 8,   // Prix par pack (8 bouteilles)
-    
-    // Produits GAMO
-    'Eau de javel': 2400,      // Prix en vrac
-    'EAU DE JAVEL 1L': 3300,
-    'EAU DE JAVEL EN VRAC': 2400,
-    'DK vert 1l': 2200,
-    'DK vert en vrac': 2400,
-    'Bnett 1Ltr': 3300,
-    'Bnett en vrac': 2200,
-    'LAVE-VITRE 1L': 3000,
-    'colle blanche ufix 2050 seau de 04 kg': 64000,
-    'colle blanche ufix 2050 seau de 500grs': 8800,
-    'colle blanche ufix 2050 en vrac': 14700,
-    'Colle de bureau UNICOLLE 120 cc': 1600,
-    'Colle de bureau UNICOLLE 30 cc': 1000,
-    'Colle de bureau UNICOLLE 60 cc': 1300,
-    'Colle de bureau UNICOLLE 90 cc': 1500,
-    'colle unicolle en vrac': 6900,
-    'Encaustique CIRABRIL Acajou 400cc': 8100,
-    'Encaustique CIRABRIL Acajou GM': 82300,
-    'Encaustique CIRABRIL AP Neutre 400CC': 9200,
-    'Encaustique CIRABRIL AP Neutre GM': 77500,
-    'Encaustique CIRABRIL Rouge ciment 400C': 8400,
-    'Encaustique CIRABRIL Rouge ciment GM': 77400,
-    'Encaustique CIRABRIL AP Jaune 400CC': 9200,
-    'Encaustique CIRABRIL AP Jaune GM': 77500,
-    'Enduitbat sac de 1 kg': 2500,
-    'Enduitbat sac de 10 kg': 16700,
-    'Enduitbat sac de 2 kg': 4300,
-    'Enduitbat sac de 5 kg': 10300
-  };
-
-  // Normalisation du nom du produit pour recherche insensible à la casse
-  const normalizedProduit = produit.trim().toLowerCase();
   
-  // Trouver le produit correspondant dans le tableau des prix
-  for (const [nom, prix] of Object.entries(prixUnitaires)) {
-    if (normalizedProduit.includes(nom.toLowerCase()) || nom.toLowerCase().includes(normalizedProduit)) {
-      return prix;
-    }
-  }
+  // Fonction pour récupérer le prix unitaire d'un produit
+  private getPrixUnitaire(produit: string): number {
+    const prixUnitaires: { [key: string]: number } = {
+      // Produits MADO
+      'SAINTO 1.5L': 2750 * 6, // Prix par pack (6 bouteilles)
+      'SAINTO 1L': 1666 * 6,   // Prix par pack (6 bouteilles)
+      'SAINTO 0.5L': 1416 * 8, // Prix par pack (8 bouteilles)
+      'SAINTO 5L': 5000,       // Prix par bouteille
+      'Bonbone 1ere Livraison': 88000,
+      'Bonbone recharge': 36166,
+      'ICE TEA pomme 1.5L ': 8166 * 6, // Prix par pack (6 bouteilles)
+      'ICE TEA citron 1.5L': 8166 * 6, // Prix par pack (6 bouteilles)
+      'ICE peche TEA  1.5L': 8166 * 6, // Prix par pack (6 bouteilles)
+      'ICE TEA pomme 0.5L': 3500 * 8,  // Prix par pack (8 bouteilles)
+      'ICE TEA citron 0.5L': 3500 * 8,  // Prix par pack (8 bouteilles)
+      'ICE TEA peche 0.5L': 3500 * 8,   // Prix par pack (8 bouteilles)
 
-  return 0; // Retourne 0 si le produit n'est pas trouvé
-}
+      // Produits GAMO
+      'Eau de javel': 2400,      // Prix en vrac
+      'EAU DE JAVEL 1L': 3300,
+      'EAU DE JAVEL EN VRAC': 2400,
+      'DK vert 1l': 2200,
+      'DK vert en vrac': 2400,
+      'Bnett 1Ltr': 3300,
+      'Bnett en vrac': 2200,
+      'LAVE-VITRE 1L': 3000,
+      'colle blanche ufix 2050 seau de 04 kg': 64000,
+      'colle blanche ufix 2050 seau de 500grs': 8800,
+      'colle blanche ufix 2050 en vrac': 14700,
+      'Colle de bureau UNICOLLE 120 cc': 1600,
+      'Colle de bureau UNICOLLE 30 cc': 1000,
+      'Colle de bureau UNICOLLE 60 cc': 1300,
+      'Colle de bureau UNICOLLE 90 cc': 1500,
+      'colle unicolle en vrac': 6900,
+      'Encaustique CIRABRIL Acajou 400cc': 8100,
+      'Encaustique CIRABRIL Acajou GM': 82300,
+      'Encaustique CIRABRIL AP Neutre 400CC': 9200,
+      'Encaustique CIRABRIL AP Neutre GM': 77500,
+      'Encaustique CIRABRIL Rouge ciment 400C': 8400,
+      'Encaustique CIRABRIL Rouge ciment GM': 77400,
+      'Encaustique CIRABRIL AP Jaune 400CC': 9200,
+      'Encaustique CIRABRIL AP Jaune GM': 77500,
+      'Enduitbat sac de 1 kg': 2500,
+      'Enduitbat sac de 10 kg': 16700,
+      'Enduitbat sac de 2 kg': 4300,
+      'Enduitbat sac de 5 kg': 10300
+    };
+
+    // Normalisation du nom du produit pour recherche insensible à la casse
+    const normalizedProduit = produit.trim().toLowerCase();
+
+    // Trouver le produit correspondant dans le tableau des prix
+    for (const [nom, prix] of Object.entries(prixUnitaires)) {
+      if (normalizedProduit.includes(nom.toLowerCase()) || nom.toLowerCase().includes(normalizedProduit)) {
+        return prix;
+      }
+    }
+
+    return 0; // Retourne 0 si le produit n'est pas trouvé
+  }
 
   // Fermer le devis
   fermerDevis() {
     this.showDevis = false;
   }
 
-  // Télécharger le devis (fonction simplifiée qui pourrait être améliorée)
-  // telechargerDevis() {
-  //   alert("Fonctionnalité de téléchargement en cours de développement. Le devis sera envoyé à votre adresse email.");
-  //   this.showDevis = false;
-  // }
+  
+  // Modification 5: Mise à jour de la fonction telechargerDevis pour afficher plusieurs lignes
   telechargerDevis() {
     if (!this.devisInfo) return;
-  
+
     // Créer un nouvel objet jsPDF
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    
+
     // En-tête
     doc.setFontSize(22);
     doc.setTextColor(0, 102, 204);
     doc.text("MADO/GAMO", pageWidth / 2, 20, { align: "center" });
-    
+
     doc.setFontSize(16);
     doc.setTextColor(0, 0, 0);
     doc.text("DEVIS", pageWidth / 2, 30, { align: "center" });
-    
+
     // Informations du devis
     doc.setFontSize(10);
     doc.text(`N° Devis: ${this.devisInfo.numeroDevis}`, 15, 45);
     doc.text(`Date d'émission: ${this.devisInfo.dateEmission}`, 15, 52);
     doc.text(`Date de validité: ${this.devisInfo.dateValidite}`, 15, 59);
-    
+
     // Informations client
     doc.setFontSize(12);
     doc.text("Informations Client:", 15, 75);
@@ -692,11 +694,11 @@ private getPrixUnitaire(produit: string): number {
     doc.text(`Email: ${this.devisInfo.client.email}`, 20, 89);
     doc.text(`Téléphone: ${this.devisInfo.client.telephone}`, 20, 96);
     doc.text(`Adresse: ${this.devisInfo.client.adresse}`, 20, 103);
-    
+
     // Tableau des articles
     doc.setFontSize(12);
     doc.text("Détails de la commande:", 15, 120);
-    
+
     // En-têtes du tableau
     doc.setFillColor(240, 240, 240);
     doc.rect(15, 125, pageWidth - 30, 10, 'F');
@@ -705,34 +707,40 @@ private getPrixUnitaire(produit: string): number {
     doc.text("Quantité", 90, 132);
     doc.text("Prix unitaire HT", 120, 132);
     doc.text("Total HT", 170, 132);
-    
-    // Ligne de l'article
+
+    // Lignes des articles
     let y = 142;
-    doc.text(this.devisInfo.articles[0].designation, 20, y);
-    doc.text(this.devisInfo.articles[0].quantite.toString(), 90, y);
-    doc.text(`${this.devisInfo.articles[0].prixUnitaireHT.toLocaleString('fr-FR')} Ar`, 120, y);
-    doc.text(`${this.devisInfo.articles[0].totalHT.toLocaleString('fr-FR')} Ar`, 170, y);
-    
-    // Ligne de séparation
-    y += 10;
+    for (const article of this.devisInfo.articles) {
+      doc.text(article.designation, 20, y);
+      doc.text(article.quantite.toString(), 90, y);
+      doc.text(`${article.prixUnitaireHT.toLocaleString('fr-FR')} Ar`, 120, y);
+      doc.text(`${article.totalHT.toLocaleString('fr-FR')} Ar`, 170, y);
+
+      y += 10;
+      // Ajouter une ligne de séparation entre chaque article
+      doc.setDrawColor(230, 230, 230);
+      doc.line(15, y - 3, pageWidth - 15, y - 3);
+    }
+
+    // Ligne de séparation plus marquée avant les totaux
     doc.setDrawColor(200, 200, 200);
     doc.line(15, y, pageWidth - 15, y);
-    
+
     // Total
     y += 15;
     doc.text("Total HT:", 130, y);
     doc.text(`${this.devisInfo.totalHT.toLocaleString('fr-FR')} Ar`, 170, y);
-    
+
     y += 7;
     doc.text("TVA (20%):", 130, y);
     doc.text(`${this.devisInfo.tva.toLocaleString('fr-FR')} Ar`, 170, y);
-    
+
     y += 7;
     doc.setFontSize(12);
     doc.setTextColor(0, 102, 204);
     doc.text("Total TTC:", 130, y);
     doc.text(`${this.devisInfo.totalTTC.toLocaleString('fr-FR')} Ar`, 170, y);
-    
+
     // Conditions
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
@@ -740,17 +748,17 @@ private getPrixUnitaire(produit: string): number {
     doc.text("Conditions:", 15, y);
     y += 7;
     doc.text(this.devisInfo.conditions, 20, y);
-    
+
     // Pied de page
     y += 30;
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text("MADO/GAMO - Ampasampito - Madagascar", pageWidth / 2, y, { align: "center" });
     doc.text("Contacts: tsilavina484@gmail.com", pageWidth / 2, y + 5, { align: "center" });
-    
+
     // Télécharger le PDF
     doc.save(`devis_${this.devisInfo.numeroDevis}_${this.devisInfo.client.nom.replace(/ /g, '_')}.pdf`);
-    
+
     // Fermer la modal après téléchargement
     this.showDevis = false;
   }
