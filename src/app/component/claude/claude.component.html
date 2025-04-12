@@ -1,6 +1,6 @@
 <div class="chat-container" style="height: 100vh;">
     <div class="chat-header">
-        <h2>SAINTO - Assistant Commercial</h2>
+        <h2>MADO/GAMO - Assistant Commercial</h2>
     </div>
 
     <div #chatBox class="chat-messages">
@@ -19,3 +19,85 @@
         <button (click)="envoyerMessage()">Envoyer</button>
     </div>
 </div>
+
+<!-- devis -->
+<!-- Ajouter ceci dans le fichier claude.component.html -->
+
+<!-- Fenêtre modale pour le devis -->
+<!-- *ngIf="showDevis" -->
+@if(showDevis){
+<div class="devis-modal">
+    <div class="devis-content">
+        <div class="devis-header">
+            <h2>Devis N° {{devisInfo.numeroDevis}}</h2>
+            <span class="close-btn" (click)="fermerDevis()">&times;</span>
+        </div>
+
+        <div class="devis-body">
+            <div class="devis-info">
+                <div class="devis-dates">
+                    <p><strong>Date d'émission:</strong> {{devisInfo.dateEmission}}</p>
+                    <p><strong>Date de validité:</strong> {{devisInfo.dateValidite}}</p>
+                </div>
+
+                <div class="devis-client">
+                    <h3>Informations client</h3>
+                    <p><strong>Nom:</strong> {{devisInfo.client.nom}}</p>
+                    <p><strong>Email:</strong> {{devisInfo.client.email}}</p>
+                    <p><strong>Téléphone:</strong> {{devisInfo.client.telephone}}</p>
+                    <p><strong>Adresse:</strong> {{devisInfo.client.adresse}}</p>
+                </div>
+            </div>
+
+            <div class="devis-articles">
+                <h3>Détails de la commande</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Désignation</th>
+                            <th>Quantité</th>
+                            <th>Prix unitaire HT</th>
+                            <th>Total HT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- *ngFor="let article of devisInfo.articles" -->
+                        @for (article of devisInfo.articles; track $index) {
+                        <tr>
+                            <td>{{article.designation}}</td>
+                            <td>{{article.quantite}}</td>
+                            <td>{{article.prixUnitaireHT.toLocaleString('fr-FR')}} Ar</td>
+                            <td>{{article.totalHT.toLocaleString('fr-FR')}} Ar</td>
+                        </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Total HT:</strong></td>
+                            <td>{{devisInfo.totalHT.toLocaleString('fr-FR')}} Ar</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>TVA (20%):</strong></td>
+                            <td>{{devisInfo.tva.toLocaleString('fr-FR')}} Ar</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-right"><strong>Total TTC:</strong></td>
+                            <td>{{devisInfo.totalTTC.toLocaleString('fr-FR')}} Ar</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="devis-conditions">
+                <h3>Conditions</h3>
+                <p>{{devisInfo.conditions}}</p>
+            </div>
+        </div>
+
+        <div class="devis-footer">
+            <button (click)="telechargerDevis()" class="download-btn">Télécharger le devis</button>
+            <button (click)="fermerDevis()" class="close-btn">Fermer</button>
+        </div>
+    </div>
+</div>
+}
