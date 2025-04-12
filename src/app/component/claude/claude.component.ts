@@ -421,8 +421,12 @@ private calculerPrix(produit: string, quantite: number): any {
     'SAINTO 5L': 5000,       // Prix par bouteille
     'Bonbone 1ere Livraison': 88000,
     'Bonbone recharge': 36166,
-    'ICE TEA 1.5L': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 0.5L': 3500 * 8,  // Prix par pack (8 bouteilles)
+    'ICE TEA 1.5L pomme ': 8166 * 6, // Prix par pack (6 bouteilles)
+    'ICE TEA 1.5L citron ': 8166 * 6, // Prix par pack (6 bouteilles)
+    'ICE TEA 1.5L peche ': 8166 * 6, // Prix par pack (6 bouteilles)
+    'ICE TEA 0.5L pomme': 3500 * 8,  // Prix par pack (8 bouteilles)
+    'ICE TEA 0.5L citron': 3500 * 8,  // Prix par pack (8 bouteilles)
+    'ICE TEA 0.5L peche': 3500 * 8,  // Prix par pack (8 bouteilles)
     
     // Produits GAMO
     'Eau de javel': 2400,      // Prix en vrac
@@ -597,8 +601,12 @@ private getPrixUnitaire(produit: string): number {
     'SAINTO 5L': 5000,       // Prix par bouteille
     'Bonbone 1ere Livraison': 88000,
     'Bonbone recharge': 36166,
-    'ICE TEA 1.5L': 8166 * 6, // Prix par pack (6 bouteilles)
-    'ICE TEA 0.5L': 3500 * 8,  // Prix par pack (8 bouteilles)
+    'ICE TEA 1.5L pomme ': 8166 * 6, // Prix par pack (6 bouteilles)
+    'ICE TEA 1.5L citron ': 8166 * 6, // Prix par pack (6 bouteilles)
+    'ICE TEA 1.5L peche ': 8166 * 6, // Prix par pack (6 bouteilles)
+    'ICE TEA 0.5L pomme': 3500 * 8,  // Prix par pack (8 bouteilles)
+    'ICE TEA 0.5L citron': 3500 * 8,  // Prix par pack (8 bouteilles)
+    'ICE TEA 0.5L peche': 3500 * 8,   // Prix par pack (8 bouteilles)
     
     // Produits GAMO
     'Eau de javel': 2400,      // Prix en vrac
