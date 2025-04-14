@@ -930,6 +930,7 @@ Adresse : ${adresse_client}`
 
     // Fermer la modal après téléchargement
     this.showDevis = false;
+    this.showConfirmation = true;
   }
 
   // Obtenir une estimation de date de livraison (48h après)
