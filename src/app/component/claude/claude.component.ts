@@ -166,6 +166,7 @@ Règles de vente:
 -tous les prix des produits GAMO sont fait l'unité
 - Un pack de bouteille 1.5L ou 1L contient 6 bouteilles
 - Un pack de bouteilles 0.5L contient 8 bouteilles
+-pour le SAINTO 5L il n'y a pas de pack mais il se vend par bouteils
 - SAINTO ne livre que des packs complets, pas de bouteilles individuelles
 - Les livraisons se font 48h après la commande
 -Tous ceux qui sont en VRAC du coté du categories de GAMO sont vendus par kilo 
