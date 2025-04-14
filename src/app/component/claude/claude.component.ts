@@ -20,9 +20,12 @@ export class ClaudeComponent {
   messages: { text: string, from: 'user' | 'bot' }[] = [];
   showDevis: boolean = false;
   devisInfo: any = null;
-
+  // ... autres propriétés existantes ...
+  showConfirmation: boolean = false;
+  commandeEnAttente: any = null;
   apiKey: string = 'AIzaSyDBphs9gi7vUDoMZdYMHXCiFxY7Sb8KaRc';
   chatSession: any;
+  isLoading: boolean = false;
 
   @ViewChild('chatBox') chatBox!: ElementRef;
 
@@ -178,7 +181,8 @@ IMPORTANT:
 -Informe le client qu'un devis détaillé de sa commande s'affichera après l'envoi avec les prix TTC
 -Quand le client parle en Malgache tu repond en malgache et ainsi de suite (tu d'adapte au langue du client)
 Si un client te demande de commander plusieurs articles tu envoie les nom des articles dans le même parametre que produits dans la fonction passerCommandeFonction, et de même pour le nombre de chacun des articles.
-Quand tu réponds aux questions sur les produits, sois précis et poli.`,
+Quand tu réponds aux questions sur les produits, sois précis et poli.
+-Quand tu répond soit le plus court et concis possible et courtois`,
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -186,13 +190,50 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
         }
       ],
       generationConfig: {
-        temperature: 0.7,
+        temperature: 0.3,
         topP: 0.95,
         topK: 40
       }
     }).startChat();
   }
 
+  // async envoyerMessage() {
+  //   if (!this.userInput.trim()) return;
+
+  //   // Ajoute le message utilisateur
+  //   this.messages.push({ text: this.userInput, from: 'user' });
+
+  //   const question = this.userInput;
+  //   this.userInput = '';
+
+  //   try {
+  //     const result = await this.chatSession.sendMessage(question);
+  //     const response = result.response;
+
+  //     // Vérifier s'il y a un appel de fonction
+  //     const functionCall = this.extractFunctionCall(response);
+
+  //     if (functionCall) {
+  //       // Traiter l'appel de fonction
+  //       await this.handleFunctionCall(functionCall, response);
+  //     } else {
+  //       // Réponse normale
+  //       const text = response.text();
+  //       this.messages.push({ text, from: 'bot' });
+  //     }
+
+  //     // Scroll automatique en bas
+  //     setTimeout(() => {
+  //       if (this.chatBox?.nativeElement) {
+  //         this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+  //       }
+  //     }, 100);
+  //   } catch (err) {
+  //     console.error('Erreur:', err);
+  //     this.messages.push({ text: "Erreur lors de la réponse de l'assistant.", from: 'bot' });
+  //   }
+  // }
+  // Modifiez la méthode envoyerMessage pour vérifier si c'est une demande de liste avant d'appeler l'IA
   async envoyerMessage() {
     if (!this.userInput.trim()) return;
 
@@ -201,6 +242,23 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
 
     const question = this.userInput;
     this.userInput = '';
+
+    // Vérifier d'abord si c'est une demande de liste de produits
+    const reponseAutomatique = this.repondreListeProduits(question);
+    if (reponseAutomatique) {
+      this.messages.push({ text: reponseAutomatique, from: 'bot' });
+
+      // Scroll automatique en bas
+      setTimeout(() => {
+        if (this.chatBox?.nativeElement) {
+          this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+        }
+      }, 100);
+
+      return; // Sortir de la fonction pour ne pas appeler l'IA
+    }
+
+    this.isLoading = true;
 
     try {
       const result = await this.chatSession.sendMessage(question);
@@ -227,9 +285,10 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
     } catch (err) {
       console.error('Erreur:', err);
       this.messages.push({ text: "Erreur lors de la réponse de l'assistant.", from: 'bot' });
+    }finally{
+      this.isLoading = false;
     }
   }
-
   // Extraire l'appel de fonction de la réponse
   private extractFunctionCall(response: any): any {
     try {
@@ -251,7 +310,7 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
     }
   }
 
-  
+  // Modifiez la méthode handleFunctionCall comme suit :
   private async handleFunctionCall(functionCall: any, initialResponse: any) {
     const functionName = functionCall.name;
     const args = functionCall.args;
@@ -281,8 +340,12 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
         text: `Je traite votre commande pour ${args.nomClient}. Un devis détaillé va s'afficher...`,
         from: 'bot'
       });
+
+      // Ne pas envoyer le résultat de la fonction au modèle - utiliser une réponse automatique à la place
+      return;  // Ajout de cette ligne pour sortir de la fonction
     }
     else if (functionName === 'calculerPrix') {
+      this.isLoading = true;
       functionResponse = this.calculerPrix(args.produit, args.quantite);
 
       // Afficher un message sur le calcul de prix dans la conversation
@@ -329,14 +392,76 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
               text: "Une erreur est survenue lors du calcul du prix. Veuillez réessayer.",
               from: 'bot'
             });
+          }finally{
+            this.isLoading = false;
           }
         }
       }
     }
   }
 
-  
-  // Modification 1: Mise à jour de la structure de la fonction passerCommande
+
+
+
+  // Modifiez la méthode passerCommande pour ajouter une réponse automatique
+  // private passerCommande(produit: string, quantite: number, prix: number | null, nomClient: string, email: string, adresse: string, telephone: string): any {
+  //   // Identifier s'il y a plusieurs produits
+  //   const produitsMultiples = this.extraireProduitsMultiples(produit, quantite);
+
+  //   // Calculer le prix total si nécessaire
+  //   let prixTotal = prix;
+  //   if (prixTotal === null || prixTotal === undefined) {
+  //     prixTotal = 0;
+  //     for (const item of produitsMultiples) {
+  //       const prixCalcule = this.calculerPrix(item.produit, item.quantite);
+  //       if (prixCalcule && prixCalcule.success) {
+  //         prixTotal += prixCalcule.prixHT;
+  //       }
+  //     }
+  //   }
+
+  //   // Convertir en TTC
+  //   const prixTTC = prixTotal * 1.2; // Ajouter TVA 20%
+
+  //   // Stocker la commande en attente de confirmation
+  //   this.commandeEnAttente = {
+  //     produits: produitsMultiples,
+  //     prixTotal: prixTotal,
+  //     nomClient: nomClient,
+  //     email: email,
+  //     adresse: adresse,
+  //     telephone: telephone
+  //   };
+
+  //   // Générer et afficher le devis
+  //   this.genererDevis(produitsMultiples, prixTotal, nomClient, email, adresse, telephone);
+
+  //   // Afficher la demande de confirmation après le devis
+  //   this.showConfirmation = true;
+
+  //   // Ajouter un message automatique après la génération du devis
+  //   setTimeout(() => {
+  //     this.messages.push({
+  //       text: "Votre devis a été généré avec succès. Veuillez vérifier les détails et confirmer ou annuler votre commande.",
+  //       from: 'bot'
+  //     });
+
+  //     // Scroll automatique en bas
+  //     if (this.chatBox?.nativeElement) {
+  //       this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+  //     }
+  //   }, 500);
+
+  //   // Retourner les informations de la commande
+  //   return {
+  //     success: true,
+  //     numeroCommande: `CMD-${Date.now().toString().slice(-6)}`,
+  //     estimationLivraison: this.getEstimationLivraison(),
+  //     prixTotal: prixTTC,
+  //     message: "Votre commande a été enregistrée avec succès."
+  //   };
+  // }
+
   private passerCommande(produit: string, quantite: number, prix: number | null, nomClient: string, email: string, adresse: string, telephone: string): any {
     // Identifier s'il y a plusieurs produits
     const produitsMultiples = this.extraireProduitsMultiples(produit, quantite);
@@ -353,14 +478,37 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
       }
     }
 
-    // Envoyer la commande par email
-    this.envoyerCommande(produitsMultiples, prixTotal, nomClient, email, adresse, telephone);
-
     // Convertir en TTC
     const prixTTC = prixTotal * 1.2; // Ajouter TVA 20%
 
+    // Stocker la commande en attente de confirmation
+    this.commandeEnAttente = {
+      produits: produitsMultiples,
+      prixTotal: prixTotal,
+      nomClient: nomClient,
+      email: email,
+      adresse: adresse,
+      telephone: telephone
+    };
+
     // Générer et afficher le devis
     this.genererDevis(produitsMultiples, prixTotal, nomClient, email, adresse, telephone);
+
+    // SUPPRIMÉ: Ne pas afficher la demande de confirmation maintenant
+    // this.showConfirmation = true;
+
+    // Ajouter un message automatique après la génération du devis
+    setTimeout(() => {
+      this.messages.push({
+        text: "Votre devis a été généré avec succès. Veuillez vérifier les détails. Après fermeture du devis, vous pourrez confirmer votre commande.",
+        from: 'bot'
+      });
+
+      // Scroll automatique en bas
+      if (this.chatBox?.nativeElement) {
+        this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+      }
+    }, 500);
 
     // Retourner les informations de la commande
     return {
@@ -371,6 +519,8 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
       message: "Votre commande a été enregistrée avec succès."
     };
   }
+
+
 
   private extraireProduitsMultiples(produitTexte: string, quantiteTexte: any): Array<{ produit: string, quantite: number }> {
     const produits: Array<{ produit: string, quantite: number }> = [];
@@ -421,7 +571,7 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
   }
 
 
-  
+
   // Fonction pour calculer le prix
   private calculerPrix(produit: string, quantite: number): any {
     // Mapping des produits à leurs prix unitaires HT
@@ -508,7 +658,7 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.`,
     };
   }
 
-  
+
 
   // Modification 4: Mise à jour de la fonction envoyerCommande pour gérer plusieurs articles
   envoyerCommande(produits: Array<{ produit: string, quantite: number }>, prix: number, nom_client: string, email_client: string, adresse_client: string, numero_tel_client: string) {
@@ -550,7 +700,7 @@ Adresse : ${adresse_client}`
     return true;
   }
 
-  
+
   // Modification 3: Mise à jour de la fonction genererDevis pour gérer plusieurs articles
   genererDevis(produits: Array<{ produit: string, quantite: number }>, prixTotalHT: number, nomClient: string, email: string, adresse: string, telephone: string) {
     // Calculer prix TTC
@@ -595,7 +745,7 @@ Adresse : ${adresse_client}`
     this.showDevis = true;
   }
 
-  
+
   // Fonction pour récupérer le prix unitaire d'un produit
   private getPrixUnitaire(produit: string): number {
     const prixUnitaires: { [key: string]: number } = {
@@ -660,9 +810,27 @@ Adresse : ${adresse_client}`
   // Fermer le devis
   fermerDevis() {
     this.showDevis = false;
+
+    // Afficher la confirmation seulement après la fermeture du devis
+    if (this.commandeEnAttente) {
+      this.showConfirmation = true;
+
+      // Ajouter un message automatique après la fermeture du devis
+      setTimeout(() => {
+        this.messages.push({
+          text: "Votre devis a été fermé. Veuillez confirmer ou annuler votre commande.",
+          from: 'bot'
+        });
+
+        // Scroll automatique en bas
+        if (this.chatBox?.nativeElement) {
+          this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+        }
+      }, 100);
+    }
   }
 
-  
+
   // Modification 5: Mise à jour de la fonction telechargerDevis pour afficher plusieurs lignes
   telechargerDevis() {
     if (!this.devisInfo) return;
@@ -782,5 +950,205 @@ Adresse : ${adresse_client}`
 - Prix total TTC: ${response.prixTotal.toLocaleString('fr-FR')} Ar TTC
 
 Merci de votre intérêt pour nos produits MADO/GAMO!`;
+  }
+
+
+  // Améliorez la méthode repondreListeProduits pour détecter mieux les demandes de liste
+  private repondreListeProduits(demande: string): string | null {
+    const demandeNormalisee = demande.toLowerCase().trim();
+
+    // Vérifier si c'est une intention de commande
+    const intentionCommande =
+      demandeNormalisee.includes('commande') ||
+      demandeNormalisee.includes('acheter') ||
+      demandeNormalisee.includes('pack de') ||
+      (demandeNormalisee.includes('pack') && demandeNormalisee.match(/\d+/)) ||
+      (demandeNormalisee.match(/\d+/) && (demandeNormalisee.includes('sainto') || demandeNormalisee.includes('ice tea')));
+
+    // Si c'est une intention de commande, ne pas renvoyer de liste de produits
+    if (intentionCommande) {
+      return null;
+    }
+    // Vérifier si c'est une demande de liste de produits
+    const demandeListeProduits =
+      demandeNormalisee.includes('liste') ||
+      demandeNormalisee.includes('quels produits') ||
+      demandeNormalisee.includes('quels sont les produits') ||
+      demandeNormalisee.includes('montrer les produits') ||
+      demandeNormalisee.includes('voir les produits') ||
+      demandeNormalisee.includes('produits disponibles') ||
+      demandeNormalisee.includes('catalogue');
+
+    // Liste des produits MADO
+    const produitsMADO = `
+Produits MADO (Eau minérale et Ice Tea):
+- SAINTO 1.5L (2 750 Ar HT par bouteille, pack de 6)
+- SAINTO 1L (1 666 Ar HT par bouteille, pack de 6)
+- SAINTO 5L (5 000 Ar HT par bouteille)
+- SAINTO 0.5L (1 416 Ar HT par bouteille, pack de 8)
+- Bonbone 1ère Livraison (88 000 Ar HT)
+- Bonbone recharge (36 166 Ar HT)
+- FONTAINE GM
+- FONTAINE PM
+- AQUAVALVE
+- POMPE MANUELLE
+
+Ice Tea (disponible en Pêche, Pomme, Citron):
+- ICE TEA 1.5L (8 166 Ar HT par bouteille, pack de 6)
+- ICE TEA 0.5L (3 500 Ar HT par bouteille, pack de 8)
+`;
+
+    // Liste des produits GAMO (extrait)
+    const produitsGAMOExtrait = `
+Extrait des produits GAMO (Détergent, Lave vitre, Encaustique, Colle):
+- Colle blanche ufix 2050 seau de 04 kg : 64 000 AR HT
+- Colle blanche ufix 2050 seau de 500grs : 8 800 AR HT
+- Eau de javel 1L : 3 300 AR HT
+- DK vert 1l Liquide Vaisselle : 2 200 AR HT
+- Bnett 1Ltr : 3 300 AR HT
+- LAVE-VITRE 1L : 3 000 AR HT
+
+Pour voir plus de produits GAMO, veuillez me demander "produits GAMO complet".
+`;
+
+    // Liste complète des produits GAMO
+    const produitsGAMOComplet = `
+Produits GAMO (Détergent, Lave vitre, Encaustique, Colle):
+- Colle blanche ufix 2050 seau de 04 kg : 64 000 AR HT
+- Colle blanche ufix 2050 seau de 500grs : 8 800 AR HT
+- Colle blanche ufix 2050 en vrac : 14 700 AR HT
+- Colle de bureau UNICOLLE 120 cc : 1 600 AR HT
+- Colle de bureau UNICOLLE 30 cc : 1 000 AR HT
+- Colle de bureau UNICOLLE 60 cc : 1 300 AR HT
+- Colle de bureau UNICOLLE 90 cc : 1 500 AR HT
+- Colle unicolle en vrac : 6 900 AR HT par kilo
+- Eau de javel blanc 2050 en vrac : 2 400 AR HT
+- Eau de javel 1L : 3 300 AR HT
+- Encaustique CIRABRIL Acajou 400cc : 8 100 AR HT
+- Encaustique CIRABRIL Acajou GM : 82 300 AR HT
+- Encaustique CIRABRIL AP Neutre 400CC : 9 200 AR HT
+- Encaustique CIRABRIL AP Neutre GM : 77 500 AR HT
+- Encaustique CIRABRIL Rouge ciment 400C : 8 400 AR HT
+- Encaustique CIRABRIL Rouge ciment GM : 77 400 AR HT
+- Encaustique CIRABRIL AP Jaune 400CC : 9 200 AR HT
+- Encaustique CIRABRIL AP Jaune GM : 77 500 AR HT
+- Enduitbat sac de 1 kg : 2 500 AR HT
+- Enduitbat sac de 10 kg : 16 700 AR HT
+- Enduitbat sac de 2 kg : 4 300 AR HT
+- Enduitbat sac de 5 kg : 10 300 AR HT
+- DK vert 1l Liquide Vaisselle : 2 200 AR HT
+- DK vert en vrac : 2 400 AR HT
+- Bnett 1Ltr : 3 300 AR HT
+- Bnett en vrac : 2 200 AR HT
+- LAVE-VITRE 1L : 3 000 AR HT
+`;
+
+    // Présentation des catégories
+    const presentationCategories = `
+Nous proposons deux catégories de produits :
+
+1. MADO : Eau minérale (SAINTO) et boissons (ICE TEA)
+2. GAMO : Produits détergents et adhésifs
+
+Pour voir les produits d'une catégorie, demandez "produits MADO" ou "produits GAMO".
+`;
+
+    // Vérifier la demande et retourner la réponse appropriée
+    if (demandeNormalisee.includes('mado') || demandeNormalisee.includes('sainto') || demandeNormalisee.includes('ice tea') && !intentionCommande) {
+      return produitsMADO;
+    } else if (demandeNormalisee.includes('gamo complet')) {
+      return produitsGAMOComplet;
+    } else if (demandeNormalisee.includes('gamo')) {
+      return produitsGAMOExtrait;
+    } else if (demandeListeProduits) {
+      return presentationCategories;
+    }
+
+    return null; // Pas de réponse automatique, laisse l'IA répondre
+  }
+
+
+
+  //Modifiez la méthode confirmerCommande pour mettre à jour le comportement après confirmation
+  // confirmerCommande() {
+  //   if (!this.commandeEnAttente) return;
+
+  //   // Extraire les données de la commande en attente
+  //   const { produits, prixTotal, nomClient, email, adresse, telephone } = this.commandeEnAttente;
+
+  //   // Envoyer la commande par email
+  //   this.envoyerCommande(produits, prixTotal, nomClient, email, adresse, telephone);
+
+  //   // Générer un numéro de commande
+  //   const numeroCommande = `CMD-${Date.now().toString().slice(-6)}`;
+
+  //   // Afficher un message de confirmation
+  //   this.messages.push({
+  //     text: `Votre commande n°${numeroCommande} a été confirmée et envoyée avec succès. Nous vous contacterons prochainement pour finaliser la livraison.`,
+  //     from: 'bot'
+  //   });
+
+  //   // Réinitialiser les états
+  //   this.showConfirmation = false;
+  //   this.commandeEnAttente = null;
+  //   this.showDevis = false;
+
+  //   // Scroll automatique en bas après confirmation
+  //   setTimeout(() => {
+  //     if (this.chatBox?.nativeElement) {
+  //       this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+  //     }
+  //   }, 100);
+  // }
+  confirmerCommande() {
+    if (!this.commandeEnAttente) return;
+
+    // Extraire les données de la commande en attente
+    const { produits, prixTotal, nomClient, email, adresse, telephone } = this.commandeEnAttente;
+
+    // Envoyer la commande par email
+    this.envoyerCommande(produits, prixTotal, nomClient, email, adresse, telephone);
+
+    // Générer un numéro de commande
+    const numeroCommande = `CMD-${Date.now().toString().slice(-6)}`;
+
+    // Afficher un message de confirmation
+    this.messages.push({
+      text: `Votre commande n°${numeroCommande} a été confirmée et envoyée avec succès. Nous vous contacterons prochainement pour finaliser la livraison.`,
+      from: 'bot'
+    });
+
+    // Réinitialiser les états
+    this.showConfirmation = false;
+    this.commandeEnAttente = null;
+    this.showDevis = false;
+
+    // Scroll automatique en bas après confirmation
+    setTimeout(() => {
+      if (this.chatBox?.nativeElement) {
+        this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+      }
+    }, 100);
+  }
+
+  // Ajoutez une nouvelle méthode pour annuler la commande
+  annulerCommande() {
+    // Afficher un message d'annulation
+    this.messages.push({
+      text: `Votre commande a été annulée. N'hésitez pas à nous contacter si vous avez des questions ou si vous souhaitez passer une autre commande.`,
+      from: 'bot'
+    });
+
+    // Réinitialiser les états
+    this.showConfirmation = false;
+    this.commandeEnAttente = null;
+    this.showDevis = false;
+
+    // Scroll automatique en bas après annulation
+    setTimeout(() => {
+      if (this.chatBox?.nativeElement) {
+        this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+      }
+    }, 100);
   }
 }

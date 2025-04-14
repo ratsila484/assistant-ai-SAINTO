@@ -42,22 +42,22 @@ export class ChatAssistantComponent {
       model: 'gemini-1.5-pro',
       systemInstruction: `Tu est un agent commerciale de l'entreprise SAINTO \nL'entreprise est siégé à Ampasampito qui vend principalement des eau minérale : SAINTO 1.5L qui coute 2 750 Ar HT; SAINTO 1L qui coute 1 666 Ar HT; SAINTO 5L qui coute 5000 Ar ;SAINTO 0.5L qui coute 1 416 Ar HT; Bonbone 1er Livraison 88 000 Ar HT; Bonbone recharge qui coute 36 166 Ar HT, mais aussi des ICE TEA dont il y a plusieurs parfum tels que Pêche, Pomme, Citron qui à aussi différent taille de bouteils ,, ICE TEA 1.5L qui coute 8 166 Ar HT,; ICE TEA 0.5L qui coute 3 500 Ar HT \nUn pack de bouteille 1.5L,1L est 6 bouteilles,\nUn pack de bouteilles 0.5L est 8 bouteilles \nSAINTO ne livre que des packs , pour les livraisons on accepte que des pack et non pas de bouteille, si un client veut acheter un quantité de bouteilles inferieure à 6 si 1.5l et 8 si inferieure à 0.5l\nSi une personne te demande de commander un article chez nous tu luis demande son Nom complet, son numero, addrèsse mail et addrèsse physique ou la livraison se fera 48h après 
    \n\n`,
-   
+
     });
 
     try {
-      
+
       const result = await model.generateContent(question);
       const response = await result.response;
       const text = await response.text();
-      
+
       // Ajoute la réponse de l'IA
       this.messages.push({ text, from: 'bot' });
 
       //si l'IA detecte l'intention de commander
       console.log(text);
-      if(this.contientUneCommande(text)){
-        this.envoyerCommande("RSAINTO 1.5L",2,"Tsilavina","tsilavina484@gmail.com","Antananarivo","0349688396");
+      if (this.contientUneCommande(text)) {
+        this.envoyerCommande("RSAINTO 1.5L", 2, "Tsilavina", "tsilavina484@gmail.com", "Antananarivo", "0349688396");
       }
 
       // Scroll automatique en bas
@@ -114,49 +114,3 @@ export class ChatAssistantComponent {
 
 }
 
-
-  // sendEmail() {
-
-  //   const templateParams = {
-  //     to: 'tsilavina484@gmail.com',
-  //     subject: '',
-  //     message: "Nouvelle commande"
-  //   };
-
-  //   const serviceID = 'service_pphy19i';
-  //   const templateID = 'template_67lb80k';
-  //   const publicKey = 'DErRj_-naJrrIfgqn'; // Ex: 'aBcD1234...'
-
-  //   emailjs.send(serviceID, templateID, templateParams, publicKey)
-  //     .then(() => {
-  //       alert('Email envoyé avec succès ✅');
-  //     }, (error) => {
-  //       alert('Erreur ❌ : ' + JSON.stringify(error));
-  //     });
-  // }
-
-
-    // userInput: string = '';
-  // messages: { from: 'user' | 'bot', text: string }[] = [];
-  // apiKey: string = 'AIzaSyDBphs9gi7vUDoMZdYMHXCiFxY7Sb8KaRc';
-  // aiResponse : string = '';
-
-  // @ViewChild('chatBox') chatBox!: ElementRef;
-
-  // constructor(private http: HttpClient) { }
-
-  // //evoie du message
-  // async envoyerMessage(){
-  //   //initialisation de l'API Gemini
-  //   const genAI = new GoogleGenerativeAI(this.apiKey);
-  //   const model = genAI.getGenerativeModel({model: 'gemini-1.5-pro'});
-
-  //   try{
-  //     const result = await model.generateContent(this.userInput);
-  //     const response = await result.response;
-  //     const text = await response.text();
-  //     this.aiResponse = text
-  //   }catch(err){
-  //     this.aiResponse = 'Erreur: ' + err;
-  //   }
-  // }

@@ -11,6 +11,17 @@
             </div>
         </div>
         }
+        <!-- Indicateur de chargement -->
+        <!-- *ngIf="isLoading" -->
+        @if (isLoading) {
+        <div class="loading-indicator">
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        }
     </div>
 
     <div class="chat-input">
@@ -97,6 +108,21 @@
         <div class="devis-footer">
             <button (click)="telechargerDevis()" class="download-btn">Télécharger le devis</button>
             <button (click)="fermerDevis()" class="close-btn">Fermer</button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Ajouter ceci à la fin du template -->
+<!-- *ngIf="showConfirmation"  -->
+@if(showConfirmation){
+<div class="confirmation-modal">
+    <div class=" confirmation-content">
+        <h3>Confirmer la commande</h3>
+        <p>confirmer votre commande.</p>
+        <div class="confirmation-buttons">
+            <button class="confirm-btn" (click)="confirmerCommande()">Confirmer la commande</button>
+            <button class="cancel-btn" (click)="annulerCommande()">Annuler la commande</button>
         </div>
     </div>
 </div>
