@@ -54,10 +54,12 @@ export class FormulaireDialogComponent {
       )
       console.log(this.clientidentity);
       this.dialogRef.close(this.clientidentity)
-    }else{
+    } else {
       this.dialogRef.close(false)
-      return
     }
   }
 
+  fermer() {
+    this.dialogRef.close(false);
+  }
 }

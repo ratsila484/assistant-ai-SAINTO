@@ -39,6 +39,8 @@ export class ChatIfComponent implements OnInit {
   //historiques commande
   historiqueCommandes: any[] = [];
   commandeEnCours: any = null;
+  isNotValide: boolean = false;
+  isReconfirmation = false;
   //inactivité
   private inactivityTimer: any;// 5 minutes
 
@@ -373,6 +375,32 @@ export class ChatIfComponent implements OnInit {
     const userQuestion = this.userInput;
     this.userInput = ''; // Réinitialiser l'input
 
+    if (this.isReconfirmation) {
+      if (userQuestion.toLowerCase() == "oui" ||
+        userQuestion.toLowerCase() == "je confirme" ||
+        userQuestion.toLowerCase() == "yes" ||
+        userQuestion.toLowerCase() == "ok" ||
+        userQuestion.toLowerCase() == "eny" ||
+        userQuestion.toLowerCase() == "ekena" ||
+        userQuestion.toLowerCase() == "manaiky" ||
+        userQuestion.toLowerCase() == "👌" ||
+        userQuestion.toLowerCase() == "cool" ||
+        userQuestion.toLowerCase() == "ekeko" ||
+        userQuestion.toLowerCase() == "confirme"
+      ) {
+        // Envoyer la commande seulement à cette étape finale
+        this.envoyerCommande(
+          this.articleCommander,
+          this.devisInfo.totalHT,
+          this.devisInfo.client.nom,
+          this.devisInfo.client.email,
+          this.devisInfo.client.adresse,
+          this.devisInfo.client.telephone
+        );
+        return;
+      }
+    }
+
     if (this.traiterQuestionFrequente(userQuestion)) {
       return;
     }
@@ -420,7 +448,8 @@ export class ChatIfComponent implements OnInit {
         //ouverture d'un formulaire
         setTimeout(() => {
           this.isLoading = true;
-          this.openFormulaire();
+          if (!this.openFormulaire()) {
+          };
 
         }, 1000);
         this.isLoading = false;
@@ -430,10 +459,10 @@ export class ChatIfComponent implements OnInit {
         || userQuestion.toLowerCase() == "confirme pas"
       ) {
         setTimeout(() => {
-          this.isLoading = true;
+          this.isLoading = false;
           this.addBotMessage(`Ok , nous vous remercions pour temps 😊`);
         }, 1000);
-        this.isLoading = false;
+        this.isLoading = true;
       } else if (userQuestion.toLowerCase() == "état de commande" ||
         userQuestion.toLowerCase() == "precedent commande"
         || userQuestion.toLowerCase() == "mes commandes") {
@@ -469,6 +498,7 @@ export class ChatIfComponent implements OnInit {
         this.isLoading = false;
         this.addBotMessage("Nous acceptons plusieurs modes de paiement: espèces, cartes bancaires, virements, et mobile money (MVola, Orange Money, Airtel Money).");
       }, 1000);
+      this.isLoading = true;
       return true;
     }
 
@@ -480,6 +510,7 @@ export class ChatIfComponent implements OnInit {
         this.isLoading = false;
         this.addBotMessage("Notre boutique principale est située à Ampasampito, Antananarivo. Vous pouvez nous contacter au +261 34 XX XXX XX pour plus de détails.");
       }, 1000);
+      this.isLoading = true;
       return true;
     }
 
@@ -487,15 +518,16 @@ export class ChatIfComponent implements OnInit {
     if (question.includes('prix') || question.includes('coûte') || question.includes('tarif')) {
       const produits = this.rechercherProduits(question);
       if (produits.length > 0) {
-        this.isLoading = true;
+        this.isLoading = false;
         setTimeout(() => {
-          this.isLoading = false;
+          this.isLoading = true;
           let message = "Voici les prix des produits que vous recherchez:\n";
           produits.slice(0, 3).forEach(p => {
             message += `- ${p.nom}: ${p.prix.toLocaleString('fr-FR')} Ar\n`;
           });
           this.addBotMessage(message);
         }, 1000);
+        this.isLoading = true;
         return true;
       }
     }
@@ -508,10 +540,10 @@ export class ChatIfComponent implements OnInit {
       this.allFunction = true;
       this.isLoading = false;
       setTimeout(() => {
-        this.isLoading = true;
+        this.isLoading = false;
         this.addBotMessage(` Patientez un peut svp 😊 ...`);
       }, 3000);
-      this.isLoading = false;
+      this.isLoading = true;
 
       //generation du devis
       const d = this.dialog.open(DevisMadamaComponent)
@@ -521,7 +553,7 @@ export class ChatIfComponent implements OnInit {
           this.isLoading = false;
           this.addBotMessage(`Demande de devis fermé ...`);
         }, 1000);
-        this.isLoading = false;
+        this.isLoading = true;
       })
     } else if (question.includes('commander') ||
       question.includes('je veux') || question.includes('acheter')
@@ -584,6 +616,7 @@ export class ChatIfComponent implements OnInit {
   //commande 
   openCommandeDialog() {
     try {
+      this.isReconfirmation = false;
       const dialogRef = this.dialog.open(CommandDialogComponent);
       //recuperer la valeur du dialog
       dialogRef.afterClosed().subscribe(result => {
@@ -720,7 +753,7 @@ export class ChatIfComponent implements OnInit {
   }
 
   openFormulaire() {
-
+    let resultat = false;
     const dialogRef = this.dialog.open(FormulaireDialogComponent);
     //recuperation des info du client
     dialogRef.afterClosed().subscribe(result => {
@@ -733,23 +766,25 @@ export class ChatIfComponent implements OnInit {
             prixTotal += prixCalcule.prixHT;
           }
         }
-
+        resultat = true;
         this.genererDevis(this.articleCommander, prixTotal, result[0].nom, result[0].email, result[0].adresse, result[0].num);
       }
       else {
-        this.isLoading = false;
+        this.isLoading = true;
         setTimeout(() => {
-          this.isLoading = true;
+          this.isLoading = false;
           this.messages.push({
             text: "Les informations du clients sont importants et Obligatoire chez nous avant d'éffectuer une commande 😥",
             from: 'bot'
           });
-
+          this.isLoading = true;
         }, 100);
       }
     })
+    return resultat;
 
   }
+
 
   genererDevis(produits: Array<{ nom: string, nb: number }>, prixTotalHT: number, nomClient: string, email: string, adresse: string, telephone: string) {
     // Calculer prix TTC
@@ -873,19 +908,34 @@ export class ChatIfComponent implements OnInit {
       });
 
     }, 100);
+
     this.isLoading = false;
     setTimeout(() => {
       this.isLoading = true;
       this.messages.push({
-        text: "Votre demande a été enregistrer 😊, la livraison se fera le " + this.getEstimationLivraison(),
+        text: "Confirmer-vous la commande ? (une dernière fois 😊)",
         from: 'bot'
       });
+      this.isReconfirmation = true;
 
     }, 100);
 
-    this.isLoading = true;
+    this.isLoading = false;
   }
 
+  reconfirmation() {
+    this.isLoading = false;
+    setTimeout(() => {
+      this.isLoading = true;
+      this.messages.push({
+        text: "Avant d'enregistrer , confirmez-vous cette commande ?",
+        from: 'bot'
+      });
+
+    }, 1000);
+
+    this.isLoading = true;
+  }
   // Modification 5: Mise à jour de la fonction telechargerDevis pour afficher plusieurs lignes
   telechargerDevis() {
     if (!this.devisInfo) return;
@@ -1052,7 +1102,16 @@ Adresse : ${adresse_client}`
 
     emailjs.send(serviceID, templateID, templateParams, publicKey)
       .then(() => {
-        console.log('Commande envoyée par email ✅');
+        this.isLoading = true;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.messages.push({
+            text: "Nous vous remercions pour votre cooperation 🫡, Au plaisir de vous revoir 😊🤩",
+            from: 'bot'
+          });
+
+        }, 100);
+        this.isLoading = true;
       }, (error) => {
         console.error('Erreur lors de l\'envoi de l\'email ❌ : ', error);
       });

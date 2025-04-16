@@ -2,7 +2,7 @@
     <div class="chat-header">
         <img src="mado.png" alt="" class="img" srcset="">
         <div style="margin-left: 20px;">
-            <h2>MADO/GAMO </h2>
+            <h2>MADO-GAMO </h2>
             <small><span style="font-size: 15px;">Assistant Commercial</span></small>
         </div>
     </div>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="chat-input">
-        <input type="text" placeholder="Posez une question ou passez une commande..." [(ngModel)]="userInput"
+        <input type="text" placeholder="Passez une commande..." [(ngModel)]="userInput"
             (keyup.enter)="envoyerMessage()">
         <button (click)="envoyerMessage()">
             <i class="fa fa-send"></i>
