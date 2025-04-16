@@ -1,0 +1,40 @@
+<h2 matDialogTitle>Informations du clients</h2>
+<mat-dialog-content>
+    <div class="mb-3">
+        <label for="" class="form-label">Nom</label>
+        <input type="text" class="form-control" name="nom" id="" aria-describedby="helpId" [(ngModel)]="nom"
+            placeholder="Entrer votre nom  ..." />
+        @if(nom == ""){
+        <small id="helpId" class="form-text text-danger">Obligatoire</small>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="" class="form-label">Email</label>
+        <input type="text" class="form-control" name="nom" id="" aria-describedby="helpId"
+            placeholder="Entrer votre email  ..." [(ngModel)]="email" />
+        @if(email == ""){
+        <small id="helpId" class="form-text text-danger">Obligatoire</small>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="" class="form-label">Numéro de tel</label>
+        <input type="text" class="form-control" name="nom" id="" aria-describedby="helpId"
+            placeholder="Entrer votre tel  ..." [(ngModel)]="num" />
+        @if(num == ""){
+        <small id="helpId" class="form-text text-danger">Obligatoire</small>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="" class="form-label">Adrèsse</label>
+        <input type="text" class="form-control" name="nom" id="" aria-describedby="helpId"
+            placeholder="Entrer votre adrèsse  ..." [(ngModel)]="adresse" />
+        @if(adresse == ""){
+        <small id="helpId" class="form-text text-danger">Obligatoire</small>
+        }
+    </div>
+
+</mat-dialog-content>
+<mat-dialog-actions align="center">
+    <button mat-button color="primary" (click)="validerData()">Valider</button>
+    <button mat-button mat-dialog-close="true"> Annuler</button>
+</mat-dialog-actions>

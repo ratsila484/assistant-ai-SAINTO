@@ -1,0 +1,45 @@
+<h2 matDialogTitle>Devis</h2>
+<button mat-button color="warn" (click)="fermer()" class="close">X</button>
+<mat-dialog-content>
+    <div class="mb-3">
+        <label for="" class="form-label">Type articles</label>
+        <select class="form-select form-select-lg" name="articetype" [(ngModel)]="typeArticle" id="">
+            <option value="mado" selected>MADO</option>
+            <option value="gamo">GAMO</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="" class="form-label">Articles</label>
+        <select class="form-select form-select-lg" name="" [(ngModel)]="selectedId" id="">
+            @if(typeArticle == "mado"){
+            @for (article of listeArticleMado; track $index) {
+            <option [value]="article.id" selected>{{article.nom}}</option>
+            }
+            }@else{
+            @for (article of listeArticleGamo; track $index) {
+            <option [value]="article.id" selected>{{article.nom}}</option>
+            }
+            }
+        </select>
+        <div class="mb-3">
+            <label for="" class="form-label">Quantité</label>
+            <input type="number" class="form-control" name="" id="" aria-describedby="helpId" placeholder=""
+                [(ngModel)]="nb" />
+            <small id="helpId" class="form-text text-muted">Help text</small>
+        </div>
+
+    </div>
+
+    <table style="font-size: 20px; " class="table table">
+        <tr>
+            <th>Prix HT</th>
+            <th>Prix TTC</th>
+        </tr>
+        <tr>
+            <td>{{calculePrix(selectedId,nb)[0]}} Ar</td>
+            <td>{{calculePrix(selectedId,nb)[1]}} Ar</td>
+        </tr>
+    </table>
+
+
+</mat-dialog-content>

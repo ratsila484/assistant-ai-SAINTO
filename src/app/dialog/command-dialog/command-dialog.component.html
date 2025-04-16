@@ -1,0 +1,76 @@
+<h2 matDialogTitle>Commande</h2>
+<mat-dialog-content>
+    <div class="mb-3">
+        <label for="" class="form-label">Type produit</label>
+        <select class="form-select form-select-lg" [(ngModel)]="typeArticle" name="" id="">
+            <option value="mado">MADO</option>
+            <option value="gamo">GAMO</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="" class="form-label">Articles</label>
+        <select class="form-select form-select-lg" [(ngModel)]="selectedArticleId" name="" id="">
+            @if(typeArticle == "mado"){
+            @for (article of listeArticleMado; track $index) {
+            <option [value]="article.id">{{article.nom}}</option>
+            }
+            }@else {
+            @for (article of listeArticleGamo; track $index) {
+            <option [value]="article.id">{{article.nom}}</option>
+            }
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="" class="form-label">Nombre
+            @if(typeArticle == "mado" && selectedArticleId != listeArticleMado[4].id && selectedArticleId !=
+            listeArticleMado[5].id){
+            <span>(pack(s))</span>
+            }
+        </label>
+        <input type="number" class="form-control" name="nbArticle" id="" [(ngModel)]="nbArticle" />
+        @if(quantiteNonValide){
+        <small style="color: red;">Quantité non valide</small>
+        }
+    </div>
+
+    <div class="mb-3 d-flex justify-content-center" style="flex-direction: column;">
+        <button mat-raised-button color="primary" (click)="ajouterArticle()">
+            <i class="fas fa-cart-plus" style="font-size: 18px;"></i>
+        </button>
+        <small class="text-center">î Ajouter au panier î</small>
+    </div>
+
+    <!-- Affichage des articles ajoutés -->
+    @if(listeCommande.length != 0){
+    <div class="mt-4">
+        <h6>Votre panier</h6>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Quantité</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (article of listeCommande; track $index) {
+                <tr>
+                    <td>{{article.nom}}</td>
+                    <td>{{article.nb}}</td>
+                    <td>
+                        <button mat-icon-button color="warn" (click)="supprimerArticle($index)">
+                            <i class="fas fa-trash" style="font-size: 15px;"></i>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</mat-dialog-content>
+<mat-dialog-actions align="center">
+    <button mat-button color="primary" (click)="valider()">Valider</button>
+    <button mat-button color="warn" (click)="fermer()">Annuler</button>
+</mat-dialog-actions>

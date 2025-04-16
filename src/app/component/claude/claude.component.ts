@@ -198,42 +198,6 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.
     }).startChat();
   }
 
-  // async envoyerMessage() {
-  //   if (!this.userInput.trim()) return;
-
-  //   // Ajoute le message utilisateur
-  //   this.messages.push({ text: this.userInput, from: 'user' });
-
-  //   const question = this.userInput;
-  //   this.userInput = '';
-
-  //   try {
-  //     const result = await this.chatSession.sendMessage(question);
-  //     const response = result.response;
-
-  //     // Vérifier s'il y a un appel de fonction
-  //     const functionCall = this.extractFunctionCall(response);
-
-  //     if (functionCall) {
-  //       // Traiter l'appel de fonction
-  //       await this.handleFunctionCall(functionCall, response);
-  //     } else {
-  //       // Réponse normale
-  //       const text = response.text();
-  //       this.messages.push({ text, from: 'bot' });
-  //     }
-
-  //     // Scroll automatique en bas
-  //     setTimeout(() => {
-  //       if (this.chatBox?.nativeElement) {
-  //         this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
-  //       }
-  //     }, 100);
-  //   } catch (err) {
-  //     console.error('Erreur:', err);
-  //     this.messages.push({ text: "Erreur lors de la réponse de l'assistant.", from: 'bot' });
-  //   }
-  // }
   // Modifiez la méthode envoyerMessage pour vérifier si c'est une demande de liste avant d'appeler l'IA
   async envoyerMessage() {
     if (!this.userInput.trim()) return;
@@ -248,7 +212,7 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.
     const reponseAutomatique = this.repondreListeProduits(question);
     if (reponseAutomatique) {
       this.messages.push({ text: reponseAutomatique, from: 'bot' });
-
+      //this.questionMadama(question);
       // Scroll automatique en bas
       setTimeout(() => {
         if (this.chatBox?.nativeElement) {
@@ -286,7 +250,7 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.
     } catch (err) {
       console.error('Erreur:', err);
       this.messages.push({ text: "Erreur lors de la réponse de l'assistant.", from: 'bot' });
-    }finally{
+    } finally {
       this.isLoading = false;
     }
   }
@@ -393,7 +357,7 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.
               text: "Une erreur est survenue lors du calcul du prix. Veuillez réessayer.",
               from: 'bot'
             });
-          }finally{
+          } finally {
             this.isLoading = false;
           }
         }
@@ -401,67 +365,6 @@ Quand tu réponds aux questions sur les produits, sois précis et poli.
     }
   }
 
-
-
-
-  // Modifiez la méthode passerCommande pour ajouter une réponse automatique
-  // private passerCommande(produit: string, quantite: number, prix: number | null, nomClient: string, email: string, adresse: string, telephone: string): any {
-  //   // Identifier s'il y a plusieurs produits
-  //   const produitsMultiples = this.extraireProduitsMultiples(produit, quantite);
-
-  //   // Calculer le prix total si nécessaire
-  //   let prixTotal = prix;
-  //   if (prixTotal === null || prixTotal === undefined) {
-  //     prixTotal = 0;
-  //     for (const item of produitsMultiples) {
-  //       const prixCalcule = this.calculerPrix(item.produit, item.quantite);
-  //       if (prixCalcule && prixCalcule.success) {
-  //         prixTotal += prixCalcule.prixHT;
-  //       }
-  //     }
-  //   }
-
-  //   // Convertir en TTC
-  //   const prixTTC = prixTotal * 1.2; // Ajouter TVA 20%
-
-  //   // Stocker la commande en attente de confirmation
-  //   this.commandeEnAttente = {
-  //     produits: produitsMultiples,
-  //     prixTotal: prixTotal,
-  //     nomClient: nomClient,
-  //     email: email,
-  //     adresse: adresse,
-  //     telephone: telephone
-  //   };
-
-  //   // Générer et afficher le devis
-  //   this.genererDevis(produitsMultiples, prixTotal, nomClient, email, adresse, telephone);
-
-  //   // Afficher la demande de confirmation après le devis
-  //   this.showConfirmation = true;
-
-  //   // Ajouter un message automatique après la génération du devis
-  //   setTimeout(() => {
-  //     this.messages.push({
-  //       text: "Votre devis a été généré avec succès. Veuillez vérifier les détails et confirmer ou annuler votre commande.",
-  //       from: 'bot'
-  //     });
-
-  //     // Scroll automatique en bas
-  //     if (this.chatBox?.nativeElement) {
-  //       this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
-  //     }
-  //   }, 500);
-
-  //   // Retourner les informations de la commande
-  //   return {
-  //     success: true,
-  //     numeroCommande: `CMD-${Date.now().toString().slice(-6)}`,
-  //     estimationLivraison: this.getEstimationLivraison(),
-  //     prixTotal: prixTTC,
-  //     message: "Votre commande a été enregistrée avec succès."
-  //   };
-  // }
 
   private passerCommande(produit: string, quantite: number, prix: number | null, nomClient: string, email: string, adresse: string, telephone: string): any {
     // Identifier s'il y a plusieurs produits
@@ -1068,40 +971,38 @@ Pour voir les produits d'une catégorie, demandez "produits MADO" ou "produits G
 
     return null; // Pas de réponse automatique, laisse l'IA répondre
   }
+  private repondreQuestionMadama(demande: string): string | null {
+    const demandeNormalisee = demande.toLowerCase().trim();
+
+    // Vérifier si c'est une intention de commande
+    const intentionDeMadama =
+      demandeNormalisee.includes('demande') ||
+      demandeNormalisee.includes('hangataka') ||
+      demandeNormalisee.includes('devis') ||
+      (demandeNormalisee.includes('') && demandeNormalisee.match(/\d+/)) ||
+      (demandeNormalisee.match(/\d+/) && (demandeNormalisee.includes('sainto') || demandeNormalisee.includes('ice tea')));
+
+    // Si c'est une intention de commande, ne pas renvoyer de liste de produits
+    if (intentionDeMadama) {
+      return null;
+    }
+
+    const reponseDesQuestionMadama = `
+      Veuillez commander d'abord un produit
+    `;
 
 
 
-  //Modifiez la méthode confirmerCommande pour mettre à jour le comportement après confirmation
-  // confirmerCommande() {
-  //   if (!this.commandeEnAttente) return;
 
-  //   // Extraire les données de la commande en attente
-  //   const { produits, prixTotal, nomClient, email, adresse, telephone } = this.commandeEnAttente;
 
-  //   // Envoyer la commande par email
-  //   this.envoyerCommande(produits, prixTotal, nomClient, email, adresse, telephone);
+    // Vérifier la demande et retourner la réponse appropriée
+    if (intentionDeMadama) {
+      return reponseDesQuestionMadama;
+    }
 
-  //   // Générer un numéro de commande
-  //   const numeroCommande = `CMD-${Date.now().toString().slice(-6)}`;
+    return null; // Pas de réponse automatique, laisse l'IA répondre
+  }
 
-  //   // Afficher un message de confirmation
-  //   this.messages.push({
-  //     text: `Votre commande n°${numeroCommande} a été confirmée et envoyée avec succès. Nous vous contacterons prochainement pour finaliser la livraison.`,
-  //     from: 'bot'
-  //   });
-
-  //   // Réinitialiser les états
-  //   this.showConfirmation = false;
-  //   this.commandeEnAttente = null;
-  //   this.showDevis = false;
-
-  //   // Scroll automatique en bas après confirmation
-  //   setTimeout(() => {
-  //     if (this.chatBox?.nativeElement) {
-  //       this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
-  //     }
-  //   }, 100);
-  // }
   confirmerCommande() {
     if (!this.commandeEnAttente) return;
 
