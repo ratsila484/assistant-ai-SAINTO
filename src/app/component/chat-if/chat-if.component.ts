@@ -661,7 +661,7 @@ export class ChatIfComponent implements OnInit {
           setTimeout(() => {
             this.isLoading = false;
             this.messages.push({
-              text: `Vous confirmer votre commande 😊?`,
+              text: `Vous confirmer votre commande 😊? (création du devis de votre commande)`,
               from: 'bot'
             })
           }, 1000);
