@@ -235,7 +235,7 @@ export class ChatIfComponent implements OnInit {
 
   ngOnInit(): void {
     this.messages.push({
-      text: `Bonjour , je l'assistant commerciale du groupe GAMO/MADO ,
+      text: `Bonjour , je suis l'assistant commerciale du groupe GAMO/MADO
         Les boutons en haut sont là pour faciliter la communication entre vous et moi😊
       `, from: "bot"
     })
