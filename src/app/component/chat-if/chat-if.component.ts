@@ -410,7 +410,13 @@ export class ChatIfComponent implements OnInit {
       userQuestion.toLowerCase() == "manaona" ||
       userQuestion.toLowerCase() == "kez" ||
       userQuestion.toLowerCase() == "hello" ||
-      userQuestion.toLowerCase() == "hi"
+      userQuestion.toLowerCase() == "hi" ||
+      userQuestion.toLowerCase() == "bonjour " ||
+      userQuestion.toLowerCase() == "salut " ||
+      userQuestion.toLowerCase() == "manaona " ||
+      userQuestion.toLowerCase() == "kez " ||
+      userQuestion.toLowerCase() == "hello " ||
+      userQuestion.toLowerCase() == "hi "
     ) {
       this.allFunction = true;
       this.isLoading = true;
@@ -430,7 +436,10 @@ export class ChatIfComponent implements OnInit {
       if (userQuestion.toLowerCase() == "oui" || userQuestion.toLowerCase() == "je confirme" ||
         userQuestion.toLowerCase() == "confirme" || userQuestion.toLowerCase() == "ok" ||
         userQuestion.toLowerCase() == "yes" || userQuestion.toLowerCase() == "ie" || userQuestion.toLowerCase() == "eny" ||
-        userQuestion.toLowerCase() == "eny tompoko"
+        userQuestion.toLowerCase() == "eny tompoko" ||
+        userQuestion.toLowerCase() == "confirme " || userQuestion.toLowerCase() == "ok " ||
+        userQuestion.toLowerCase() == "yes " || userQuestion.toLowerCase() == "ie " || userQuestion.toLowerCase() == "eny " ||
+        userQuestion.toLowerCase() == "eny tompoko "
       ) {
         this.isLoading = false;
         setTimeout(() => {
@@ -456,7 +465,9 @@ export class ChatIfComponent implements OnInit {
 
 
       } else if (userQuestion.toLowerCase() == "non" || userQuestion.toLowerCase() == "je ne confirme pas"
-        || userQuestion.toLowerCase() == "confirme pas"
+        || userQuestion.toLowerCase() == "confirme pas" ||
+        userQuestion.toLowerCase() == "non " || userQuestion.toLowerCase() == "je ne confirme pas "
+        || userQuestion.toLowerCase() == "confirme pas "
       ) {
         setTimeout(() => {
           this.isLoading = false;
@@ -559,7 +570,11 @@ export class ChatIfComponent implements OnInit {
       question.includes('je veux') || question.includes('acheter')
       || question.includes('commande') || question.includes('hividy')
       || question.includes('commandy') || question.includes('kiomandy') ||
-      question.includes('hicommandy')
+      question.includes('hicommandy') ||
+      question.includes('je veux ') || question.includes('acheter ')
+      || question.includes('commande ') || question.includes('hividy ')
+      || question.includes('commandy ') || question.includes('kiomandy ') ||
+      question.includes('hicommandy ')
     ) {
       this.allFunction = true;
       this.isLoading = true;
@@ -577,7 +592,16 @@ export class ChatIfComponent implements OnInit {
       question.includes('product') ||
       question.includes('goods') ||
       question.includes('marchandises') ||
-      question.includes('marchandise')
+      question.includes('marchandise') ||
+      question.includes('produits ') ||
+      question.includes('produit ') ||
+      question.includes('catalogues ') ||
+      question.includes('catalogue ') ||
+      question.includes('entana ') ||
+      question.includes('product ') ||
+      question.includes('goods ') ||
+      question.includes('marchandises ') ||
+      question.includes('marchandise ')
     ) {
       this.allFunction = true;
       this.isLoading = true;
