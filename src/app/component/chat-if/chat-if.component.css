@@ -430,8 +430,20 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s;
+    box-shadow: 3px 3px 3px #33333367;
 }
 
 .action-btn:hover {
     background-color: #45a049;
+}
+
+.img{
+    width: 70px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.chat-header{
+    display: flex;
+    align-items: center;
 }

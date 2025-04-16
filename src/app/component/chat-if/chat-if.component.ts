@@ -400,7 +400,9 @@ export class ChatIfComponent implements OnInit {
       this.allFunction = true;
 
       if (userQuestion.toLowerCase() == "oui" || userQuestion.toLowerCase() == "je confirme" ||
-        userQuestion.toLowerCase() == "confirme"
+        userQuestion.toLowerCase() == "confirme" || userQuestion.toLowerCase() == "ok" ||
+        userQuestion.toLowerCase() == "yes" || userQuestion.toLowerCase() == "ie" || userQuestion.toLowerCase() == "eny" ||
+        userQuestion.toLowerCase() == "eny tompoko"
       ) {
         this.isLoading = false;
         setTimeout(() => {
@@ -435,7 +437,7 @@ export class ChatIfComponent implements OnInit {
       } else if (userQuestion.toLowerCase() == "état de commande" ||
         userQuestion.toLowerCase() == "precedent commande"
         || userQuestion.toLowerCase() == "mes commandes") {
-          this.afficherEtatCommande();
+        this.afficherEtatCommande();
       }
     } else if (!this.allFunction) {
       setTimeout(() => {
@@ -882,8 +884,6 @@ export class ChatIfComponent implements OnInit {
     }, 100);
 
     this.isLoading = true;
-    this.envoyerCommande(this.articleCommander, this.devisInfo.totalHT, this.devisInfo.client.nom, this.devisInfo.client.email, this.devisInfo.client.adresse, this.devisInfo.client.telephone);
-
   }
 
   // Modification 5: Mise à jour de la fonction telechargerDevis pour afficher plusieurs lignes
