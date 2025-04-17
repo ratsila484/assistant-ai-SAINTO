@@ -3,3 +3,11 @@
     right: 20px;
     top: 10px;
 }
+
+.card-text {
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+}
+
+

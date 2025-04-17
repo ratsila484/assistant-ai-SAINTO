@@ -13,20 +13,28 @@
     @if(typeArticle == "mado"){
     @for (article of listeArticleMado; track $index) {
     <div class="card text-start mb-3">
-        <img class="card-img-top" src="holder.js/100px180/" alt="Title" />
+        <img class="card-img-top" src="" alt="Title" />
         <div class="card-body">
             <h4 class="card-title">{{article.nom}}</h4>
-            <p class="card-text">{{article.prix}} Ar HT</p>
+            <div class="bloc">
+                <div class="">
+                    <p class="card-text">{{article.prix}} Ar HT</p>
+                    <p class="card-text">{{(article.prix * 1.2).toFixed(2)}} Ar TTC</p>
+                </div>
+            </div>
         </div>
     </div>
     }
     }@else {
     @for (article of listeArticleGamo; track $index) {
     <div class="card text-start mb-3">
-        <img class="card-img-top" src="holder.js/100px180/" alt="Title" />
+        <img class="card-img-top" src="" alt="Title" />
         <div class="card-body">
             <h4 class="card-title">{{article.nom}}</h4>
-            <p class="card-text">{{article.prix}} Ar HT</p>
+            <div class="bloc">
+                <p class="card-text">{{article.prix}} Ar HT</p>
+                <p class="card-text">{{(article.prix * 1.2).toFixed(2)}} Ar TTC</p>
+            </div>
         </div>
     </div>
     }
