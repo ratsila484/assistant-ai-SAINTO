@@ -1,5 +1,5 @@
 import { isPlatformBrowser, NgClass } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { AfterContentChecked, Component, ElementRef, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { CommandDialogComponent } from '../../dialog/command-dialog/command-dialog.component'
@@ -22,7 +22,7 @@ import { AllProduitsComponent } from '../../dialog/all-produits/all-produits.com
   templateUrl: './chat-if.component.html',
   styleUrl: './chat-if.component.css'
 })
-export class ChatIfComponent implements OnInit {
+export class ChatIfComponent implements OnInit{
   isLoading: boolean = false;
   messages: { text: string, from: 'bot' | 'user' }[] = []
   userInput: string = "";
@@ -36,6 +36,7 @@ export class ChatIfComponent implements OnInit {
   totalPrix: number = 0;
   allFunction: boolean = false;
 
+  @ViewChild('chatBox') private chatBox!: ElementRef;
   //historiques commande
   historiqueCommandes: any[] = [];
   commandeEnCours: any = null;
@@ -43,7 +44,9 @@ export class ChatIfComponent implements OnInit {
   isReconfirmation = false;
   //inactivité
   private inactivityTimer: any;// 5 minutes
-
+// Variables pour la fonctionnalité de minimisation
+private lastScrollTop: number = 0;
+private actionButtonsMinimized: boolean = false;
   constructor(
     private dialog: MatDialog,
     private chatService: ChatService,
@@ -205,6 +208,8 @@ export class ChatIfComponent implements OnInit {
     { id: 28, nom: "Enduitbat sac de 5 kg", prix: 10300 }
   ]
 
+ 
+
   // Nouvelle méthode pour enregistrer l'historique des commandes
   enregistrerCommande(commande: any): void {
     this.historiqueCommandes.push({
@@ -238,11 +243,52 @@ export class ChatIfComponent implements OnInit {
       text: `Bonjour , je suis l'assistant commerciale du groupe GAMO/MADO
         Les boutons en haut sont là pour faciliter la communication entre vous et moi😊
       `, from: "bot"
-    })
 
+      
+    })
+// Ajouter des écouteurs d'événements pour le scroll
+setTimeout(() => {
+  this.setupScrollHandlers();
+  this.setupToggleButton();
+}, 0);
     // Ajouter la gestion de l'inactivité
     // this.resetInactivityTimer();
 
+  }
+
+  private setupScrollHandlers(): void {
+    const chatBox = this.chatBox.nativeElement;
+    const actionButtons = document.getElementById('actionButtons');
+    
+    chatBox.addEventListener('scroll', () => {
+      const st = chatBox.scrollTop;
+      
+      // Si on défile vers le haut et que les boutons ne sont pas encore minimisés
+      if (st < this.lastScrollTop && !this.actionButtonsMinimized) {
+        actionButtons?.classList.add('minimized');
+        this.actionButtonsMinimized = true;
+      }
+      
+      this.lastScrollTop = st <= 0 ? 0 : st;
+    });
+  }
+  
+  private setupToggleButton(): void {
+    const actionButtons = document.getElementById('actionButtons');
+    const toggleBtn = document.querySelector('.toggle-btn') as HTMLElement;
+    
+    if (toggleBtn && actionButtons) {
+      toggleBtn.addEventListener('click', () => {
+        actionButtons.classList.toggle('minimized');
+        this.actionButtonsMinimized = actionButtons.classList.contains('minimized');
+      });
+    }
+  }
+  
+  private scrollToBottom(): void {
+    try {
+      this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
+    } catch (err) { }
   }
 
   // Méthode pour réinitialiser le minuteur d'inactivité
