@@ -13,7 +13,7 @@
     @if(typeArticle == "mado"){
     @for (article of listeArticleMado; track $index) {
     <div class="card text-start mb-3">
-        <img class="card-img-top" src="" alt="Title" />
+        <img class="card-img-top" [src]="article.img" style="height: 200px; width: 100px; transform: translateX(90px);" alt="Title" />
         <div class="card-body">
             <h4 class="card-title">{{article.nom}}</h4>
             <div class="bloc">
