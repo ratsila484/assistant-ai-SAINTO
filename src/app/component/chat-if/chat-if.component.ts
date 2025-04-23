@@ -647,7 +647,9 @@ setTimeout(() => {
       question.includes('product ') ||
       question.includes('goods ') ||
       question.includes('marchandises ') ||
-      question.includes('marchandise ')
+      question.includes('marchandise ') ||
+      question.includes('sainto ') ||
+      question.includes('sainto')
     ) {
       this.allFunction = true;
       this.isLoading = true;
