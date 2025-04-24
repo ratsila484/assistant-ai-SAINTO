@@ -243,8 +243,6 @@ export class ChatIfComponent implements OnInit {
       text: `Bonjour , je suis l'assistant commerciale  officiel du groupe GAMO/MADO disponnible 24h/7j,
       Pour passer commande appuyer sur le bouton en 👆😊
       `, from: "bot"
-
-
     })
     // Ajouter des écouteurs d'événements pour le scroll
     setTimeout(() => {
@@ -814,7 +812,9 @@ export class ChatIfComponent implements OnInit {
   openCommandeDialog() {
     try {
       this.isReconfirmation = false;
-      const dialogRef = this.dialog.open(CommandDialogComponent);
+      const dialogRef = this.dialog.open(CommandDialogComponent,{
+        disableClose: true
+      });
       //recuperer la valeur du dialog
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
@@ -983,7 +983,9 @@ export class ChatIfComponent implements OnInit {
 
   openFormulaire() {
     let resultat = false;
-    const dialogRef = this.dialog.open(FormulaireDialogComponent);
+    const dialogRef = this.dialog.open(FormulaireDialogComponent, {
+      disableClose: true
+    });
     //recuperation des info du client
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
