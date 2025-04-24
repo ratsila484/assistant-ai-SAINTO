@@ -10,12 +10,20 @@
         </select>
     </div>
 
+
     @if(typeArticle == "mado"){
     @for (article of listeArticleMado; track $index) {
     <div class="card text-start mb-3">
-        <img class="card-img-top" [src]="article.img" style="height: 200px; width: 100px; transform: translateX(90px);" alt="Title" />
+        <img class="card-img-top" [src]="article.img" style="height: 200px; width: 100px; transform: translateX(90px);"
+            alt="Title" />
+        <div class="ribbon-wrapper ribbon-lg">
+            <div class="ribbon bg-warning text-lg">
+                TVA 20%
+            </div>
+        </div>
+
         <div class="card-body">
-            <h4 class="card-title">{{article.nom}}</h4>
+            <h4 class="card-title" style="font-style: italic; color: rgba(128, 128, 128, 0.904);">{{article.nom}}</h4>
             <div class="bloc">
                 <div class="">
                     <p class="card-text">{{article.prix}} Ar HT</p>
@@ -28,9 +36,14 @@
     }@else {
     @for (article of listeArticleGamo; track $index) {
     <div class="card text-start mb-3">
+        <div class="ribbon-wrapper ribbon-lg">
+            <div class="ribbon bg-warning text-lg">
+                TVA 20%
+            </div>
+        </div>
         <img class="card-img-top" src="" alt="Title" />
         <div class="card-body">
-            <h4 class="card-title">{{article.nom}}</h4>
+            <h4 class="card-title" style="font-style: italic; color: rgba(128, 128, 128, 0.904);">{{article.nom}}</h4>
             <div class="bloc">
                 <p class="card-text">{{article.prix}} Ar HT</p>
                 <p class="card-text">{{(article.prix * 1.2).toFixed(2)}} Ar TTC</p>

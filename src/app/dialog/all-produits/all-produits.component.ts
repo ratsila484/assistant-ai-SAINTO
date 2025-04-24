@@ -44,7 +44,7 @@ export class AllProduitsComponent {
     },
     {
       id: 5,
-      nom: "Bonbonne 1ère Livraison",
+      nom: "Bonbonne 1ère Livraison (neuve)",
       prix: 73333.33,
       img: "products/bbn.webp"
     },

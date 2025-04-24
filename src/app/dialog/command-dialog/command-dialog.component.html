@@ -1,5 +1,7 @@
 <h2 matDialogTitle>Commande</h2>
 <mat-dialog-content>
+    <small style="font-size: 12px;"><span style="color: red;">*</span>Nb: Nous ne vendons qu'en pack pour les produits MADO sauf pour le <span
+            style="font-weight: bold;">Bonbonne 5GAL</span> et <span style="font-weight: bold;">SAINTO 5L</span></small>
     <div class="mb-3">
         <label for="" class="form-label">Type produit</label>
         <select class="form-select form-select-lg" [(ngModel)]="typeArticle" name="" id="">
@@ -22,10 +24,10 @@
         </select>
     </div>
     <div class="mb-3">
-        <label for="" class="form-label">Nombre
+        <label for="" class="form-label">Nombre(s)
             @if(typeArticle == "mado" && selectedArticleId != listeArticleMado[4].id && selectedArticleId !=
-            listeArticleMado[5].id){
-            <span>(pack(s))</span>
+            listeArticleMado[5].id && selectedArticleId != listeArticleMado[3].id){
+            <span>de pack(s)</span>
             }
         </label>
         <input type="number" class="form-control" name="nbArticle" id="" [(ngModel)]="nbArticle" />

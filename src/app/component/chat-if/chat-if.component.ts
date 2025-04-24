@@ -22,7 +22,7 @@ import { AllProduitsComponent } from '../../dialog/all-produits/all-produits.com
   templateUrl: './chat-if.component.html',
   styleUrl: './chat-if.component.css'
 })
-export class ChatIfComponent implements OnInit{
+export class ChatIfComponent implements OnInit {
   isLoading: boolean = false;
   messages: { text: string, from: 'bot' | 'user' }[] = []
   userInput: string = "";
@@ -44,9 +44,9 @@ export class ChatIfComponent implements OnInit{
   isReconfirmation = false;
   //inactivité
   private inactivityTimer: any;// 5 minutes
-// Variables pour la fonctionnalité de minimisation
-private lastScrollTop: number = 0;
-private actionButtonsMinimized: boolean = false;
+  // Variables pour la fonctionnalité de minimisation
+  private lastScrollTop: number = 0;
+  private actionButtonsMinimized: boolean = false;
   constructor(
     private dialog: MatDialog,
     private chatService: ChatService,
@@ -208,7 +208,7 @@ private actionButtonsMinimized: boolean = false;
     { id: 28, nom: "Enduitbat sac de 5 kg", prix: 10300 }
   ]
 
- 
+
 
   // Nouvelle méthode pour enregistrer l'historique des commandes
   enregistrerCommande(commande: any): void {
@@ -244,13 +244,13 @@ private actionButtonsMinimized: boolean = false;
         Les boutons en haut sont là pour faciliter la communication entre vous et moi😊
       `, from: "bot"
 
-      
+
     })
-// Ajouter des écouteurs d'événements pour le scroll
-setTimeout(() => {
-  this.setupScrollHandlers();
-  this.setupToggleButton();
-}, 0);
+    // Ajouter des écouteurs d'événements pour le scroll
+    setTimeout(() => {
+      this.setupScrollHandlers();
+      this.setupToggleButton();
+    }, 0);
     // Ajouter la gestion de l'inactivité
     // this.resetInactivityTimer();
 
@@ -259,24 +259,24 @@ setTimeout(() => {
   private setupScrollHandlers(): void {
     const chatBox = this.chatBox.nativeElement;
     const actionButtons = document.getElementById('actionButtons');
-    
+
     chatBox.addEventListener('scroll', () => {
       const st = chatBox.scrollTop;
-      
+
       // Si on défile vers le haut et que les boutons ne sont pas encore minimisés
       if (st < this.lastScrollTop && !this.actionButtonsMinimized) {
         actionButtons?.classList.add('minimized');
         this.actionButtonsMinimized = true;
       }
-      
+
       this.lastScrollTop = st <= 0 ? 0 : st;
     });
   }
-  
+
   private setupToggleButton(): void {
     const actionButtons = document.getElementById('actionButtons');
     const toggleBtn = document.querySelector('.toggle-btn') as HTMLElement;
-    
+
     if (toggleBtn && actionButtons) {
       toggleBtn.addEventListener('click', () => {
         actionButtons.classList.toggle('minimized');
@@ -284,7 +284,7 @@ setTimeout(() => {
       });
     }
   }
-  
+
   private scrollToBottom(): void {
     try {
       this.chatBox.nativeElement.scrollTop = this.chatBox.nativeElement.scrollHeight;
@@ -649,7 +649,9 @@ setTimeout(() => {
       question.includes('marchandises ') ||
       question.includes('marchandise ') ||
       question.includes('sainto ') ||
-      question.includes('sainto')
+      question.includes('sainto') ||
+      question.includes('gamo') ||
+      question.includes('gamo ')
     ) {
       this.allFunction = true;
       this.isLoading = true;
@@ -709,7 +711,8 @@ setTimeout(() => {
           setTimeout(() => {
             this.isLoading = false;
             this.messages.push({
-              text: `Vous confirmer votre commande 😊? (création du devis de votre commande)`,
+              text: `Pour generer le devis nous devons vous demandez quelques informations,  \n
+              Autorisez-vous cela? 😊`,
               from: 'bot'
             })
           }, 1000);
@@ -985,7 +988,7 @@ setTimeout(() => {
     setTimeout(() => {
       this.isLoading = true;
       this.messages.push({
-        text: "Confirmer-vous la commande ? (une dernière fois 😊)",
+        text: "Confirmer-vous la commande ?",
         from: 'bot'
       });
       this.isReconfirmation = true;
@@ -1200,7 +1203,7 @@ Adresse : ${adresse_client}`
       setTimeout(() => {
         this.isLoading = false;
         this.messages.push({
-          text: "Catalogue fermer ... , on espère que vous avez trouver votre bonheur😁",
+          text: "Catalogue fermer ... , voulez vous passer une commande ?😁",
           from: 'bot'
         });
 
