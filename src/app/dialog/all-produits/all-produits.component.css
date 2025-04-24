@@ -65,3 +65,16 @@
 .ribbon-wrapper .ribbon::after {
     right: 0;
 }
+
+.message{
+    border: 1px solid red;
+}
+
+
+.table tr{
+    font-size: 13px;
+    font-weight: bolder;
+}
+.table th{
+    font-style: italic;
+}

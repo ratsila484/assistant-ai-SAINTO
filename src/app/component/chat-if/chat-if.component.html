@@ -1,11 +1,15 @@
 <div class="chat-container" style="height: 100vh;">
     <div class="chat-header">
-        <img src="logo_gamo.png" alt="" class="img" srcset="">
-        <div style="margin-left: 20px;">
-            <h2>MADO-GAMO </h2>
-            <small><span style="font-size: 15px;">Assistant Commercial</span></small>
+        
+        <div class="header">
+            <img src="logo_gamo.png" alt="" class="img" srcset="">
+            <div style="margin-left: 20px;">
+                <h2>MADO-GAMO </h2>
+                <small><span style="font-size: 15px;">Assistant Commercial</span></small>
+            </div>
+            <img src="logo_mado_2.jpg" alt="" class="img" srcset="">
         </div>
-        <img src="logo_mado_2.jpg" alt="" class="img" srcset="">
+        <small class="small">Copy right &copy; 2025. All rights reserved </small>
     </div>
 
     <!-- Ajout des boutons d'action rapide -->
@@ -15,7 +19,7 @@
         <button class="action-btn" (click)="handleQuickAction('produits')">Nos produits</button>
         <!-- <button class="action-btn" (click)="handleQuickAction('find')">Trouver un produit</button> -->
         <!-- Ajout d'un bouton pour l'état minimisé -->
-     
+
     </div>
 
     <div #chatBox class="chat-messages">
@@ -79,7 +83,7 @@
                         <tr>
                             <th>Désignation</th>
                             <th>Quantité</th>
-                            <th>Prix unitaire HT</th>
+                            <th>Prix unitaire HT <small>(pack si mado)</small></th>
                             <th>Total HT</th>
                         </tr>
                     </thead>

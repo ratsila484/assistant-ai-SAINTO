@@ -1,7 +1,9 @@
 <h2 matDialogTitle>Catalogues produits</h2>
 <button mat-button color="warn" (click)="fermer()" class="close">X</button>
-<mat-dialog-content>
 
+<mat-dialog-content>
+    <small style="font-size: 12px;">Nous ne vendons qu'on pack pour les produits MADO sauf pour le Bonbonne 5GAL et
+        SAINTO 5L</small>
     <div class="mb-3">
         <label for="" class="form-label">Type produits</label>
         <select class="form-select form-select-lg" [(ngModel)]="typeArticle" name="type" id="">
@@ -23,11 +25,35 @@
         </div>
 
         <div class="card-body">
-            <h4 class="card-title" style="font-style: italic; color: rgba(128, 128, 128, 0.904);">{{article.nom}}</h4>
+            <h4 class="card-title" style="font-style: italic; color: rgba(128, 128, 128, 0.904);">{{article.nom}}
+                ({{pack(article.nom)[0]}})</h4>
             <div class="bloc">
                 <div class="">
+                    @if(pack(article.nom)[0]){
+                    <table class="table table">
+                        <tr>
+                            <th>PU d'un bouteille </th>
+                            <th>PU d'un pack </th>
+                        </tr>
+                        <td>
+                            <tr>{{article.prix}} Ar HT</tr>
+                            <tr>{{(article.prix * 1.2).toFixed(2)}} Ar TTC</tr>
+                        </td>
+                        <td>
+                            @if(pack(article.nom)[1]){
+                            <tr>{{(article.prix * 8).toFixed(2)}} Ar HT</tr>
+                            <tr>{{(article.prix * 8 * 1.2).toFixed(2)}} Ar TTC</tr>
+                            }@else {
+                            <tr>{{(article.prix * 6).toFixed(2)}} Ar HT</tr>
+                            <tr>{{(article.prix * 6 * 1.2).toFixed(2)}} Ar TTC</tr>
+                            }
+                        </td>
+                    </table>
+                    }@else {
                     <p class="card-text">{{article.prix}} Ar HT</p>
                     <p class="card-text">{{(article.prix * 1.2).toFixed(2)}} Ar TTC</p>
+                    }
+
                 </div>
             </div>
         </div>

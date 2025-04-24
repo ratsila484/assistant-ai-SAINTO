@@ -127,4 +127,21 @@ export class AllProduitsComponent {
   fermer() {
     this.dialogRef.close(false);
   }
+
+  pack(nom) {
+    let result:any;
+    let isDemi:boolean = false;
+    let nomLower = nom.toLowerCase();
+    let m = nomLower.split(' ');
+    if (m[m.length - 1] == "1.5l" || m[m.length - 1] == "1l") {
+      result = "1pack = 6 bouteilles";
+    }
+    if (m[m.length - 1] == "0.5l") {
+      result = "1pack = 8 bouteilles";
+      isDemi = true;
+    }
+    // console.log(m[m.length-1])
+
+    return [result,isDemi];
+  }
 }

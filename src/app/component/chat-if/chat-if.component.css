@@ -13,7 +13,7 @@
 .chat-header {
     background-color: #0056b3;
     color: white;
-    padding: 15px;
+    padding: 5px;
     text-align: center;
     font-size: 18px;
 }
@@ -33,6 +33,19 @@
     padding: 10px 15px;
     border-radius: 18px;
     word-wrap: break-word;
+    animation: 0.5s forwards message_anime;
+}
+
+@keyframes message_anime {
+    0% {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1
+    }
 }
 
 .user {
@@ -432,24 +445,33 @@
     font-size: 12px;
     transition: background-color 0.3s;
     box-shadow: 3px 3px 3px #33333367;
-    
+
 }
 
 .action-btn:hover {
     background-color: #45a049;
 }
 
-.img{
+.img {
     width: 70px;
     border-radius: 50%;
     height: 50px;
 }
 
-.chat-header{
+.chat-header {
+}
+
+.header {
     display: flex;
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    height: 70px
 }
 
+.small{
+    font-size: 8px;
+    position: absolute;
+    top: 35px;
+    left: 150px;
+    color: rgb(128, 128, 128);
+}

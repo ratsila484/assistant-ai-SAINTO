@@ -240,8 +240,8 @@ export class ChatIfComponent implements OnInit {
 
   ngOnInit(): void {
     this.messages.push({
-      text: `Bonjour , je suis l'assistant commerciale du groupe GAMO/MADO
-        Les boutons en haut sont là pour faciliter la communication entre vous et moi😊
+      text: `Bonjour , je suis l'assistant commerciale  officiel du groupe GAMO/MADO disponnible 24h/7j,
+      Pour passer commande appuyer sur le bouton en 👆😊
       `, from: "bot"
 
 
@@ -291,18 +291,6 @@ export class ChatIfComponent implements OnInit {
     } catch (err) { }
   }
 
-  // Méthode pour réinitialiser le minuteur d'inactivité
-  // private resetInactivityTimer(): void {
-  //   clearTimeout(this.inactivityTimer);
-  //   this.inactivityTimer = setTimeout(() => {
-  //     if (this.messages.length > 1) { // Si une conversation a déjà eu lieu
-  //       this.addBotMessage("Êtes-vous toujours là? Je suis disponible pour vous aider.");
-  //     }
-  //   }, this.INACTIVITY_TIMEOUT);
-  // }
-
-  // N'oubliez pas de nettoyer dans ngOnDestroy
-
 
 
   // Ajouter cette méthode
@@ -349,6 +337,13 @@ export class ChatIfComponent implements OnInit {
           text: "Demande de devis d'un article",
           from: 'user'
         })
+        // Faire défiler vers le bas pour montrer le nouveau message
+        setTimeout(() => {
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
         this.isLoading = true;
         setTimeout(() => {
           this.isLoading = true;
@@ -374,6 +369,20 @@ export class ChatIfComponent implements OnInit {
           text: "Demande de catalogues de tous vos produits ",
           from: 'user'
         })
+        // Faire défiler vers le bas pour montrer le nouveau message
+        setTimeout(() => {
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
+        // Faire défiler vers le bas pour montrer le nouveau message
+        setTimeout(() => {
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
         this.isLoading = true;
         setTimeout(() => {
           this.isLoading = false;
@@ -390,6 +399,13 @@ export class ChatIfComponent implements OnInit {
           text: "Je cherche un produit ...",
           from: 'user'
         })
+        // Faire défiler vers le bas pour montrer le nouveau message
+        setTimeout(() => {
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
         this.isLoading = true;
         setTimeout(() => {
           this.isLoading = false;
@@ -434,6 +450,13 @@ export class ChatIfComponent implements OnInit {
         userQuestion.toLowerCase() == "ekeko" ||
         userQuestion.toLowerCase() == "confirme"
       ) {
+        // Faire défiler vers le bas pour montrer le nouveau message
+        setTimeout(() => {
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
         // Envoyer la commande seulement à cette étape finale
         this.envoyerCommande(
           this.articleCommander,
@@ -464,6 +487,13 @@ export class ChatIfComponent implements OnInit {
       userQuestion.toLowerCase() == "hello " ||
       userQuestion.toLowerCase() == "hi "
     ) {
+      // Faire défiler vers le bas pour montrer le nouveau message
+      setTimeout(() => {
+        const chatBox = document.querySelector('.chat-messages');
+        if (chatBox) {
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }, 100);
       this.allFunction = true;
       this.isLoading = true;
       setTimeout(() => {
@@ -487,27 +517,33 @@ export class ChatIfComponent implements OnInit {
         userQuestion.toLowerCase() == "yes " || userQuestion.toLowerCase() == "ie " || userQuestion.toLowerCase() == "eny " ||
         userQuestion.toLowerCase() == "eny tompoko "
       ) {
-        this.isLoading = false;
+        // Faire défiler vers le bas pour montrer le nouveau message
         setTimeout(() => {
-          this.isLoading = true;
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
+        this.isLoading = true;
+        setTimeout(() => {
+          this.isLoading = false;
           this.addBotMessage(`Ok, generation de votre devis ...`);
         }, 1000);
-        this.isLoading = false;
+        this.isLoading = true;
         //demande d'info du client
         setTimeout(() => {
-          this.isLoading = true;
+          this.isLoading = false;
           this.addBotMessage(`Demande d'information au client `);
-        }, 1000);
-        this.isLoading = false;
+        }, 2000);
 
         //ouverture d'un formulaire
         setTimeout(() => {
-          this.isLoading = true;
+          this.isLoading = false;
           if (!this.openFormulaire()) {
           };
 
-        }, 1000);
-        this.isLoading = false;
+        }, 4000);
+        this.isLoading = true;
 
 
       } else if (userQuestion.toLowerCase() == "non" || userQuestion.toLowerCase() == "je ne confirme pas"
@@ -515,9 +551,16 @@ export class ChatIfComponent implements OnInit {
         userQuestion.toLowerCase() == "non " || userQuestion.toLowerCase() == "je ne confirme pas "
         || userQuestion.toLowerCase() == "confirme pas "
       ) {
+        // Faire défiler vers le bas pour montrer le nouveau message
+        setTimeout(() => {
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
         setTimeout(() => {
           this.isLoading = false;
-          this.addBotMessage(`Ok , nous vous remercions pour temps 😊`);
+          this.addBotMessage(`Ok , nous vous remerçions d'être passer chez nous 😊`);
         }, 1000);
         this.isLoading = true;
       } else if (userQuestion.toLowerCase() == "état de commande" ||
@@ -526,6 +569,13 @@ export class ChatIfComponent implements OnInit {
         this.afficherEtatCommande();
       }
     } else if (!this.allFunction) {
+      // Faire défiler vers le bas pour montrer le nouveau message
+      setTimeout(() => {
+        const chatBox = document.querySelector('.chat-messages');
+        if (chatBox) {
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }, 100);
       setTimeout(() => {
         this.isLoading = false;
         this.addBotMessage(`Veuillez choisir entre les options disponible en haut svp 😊`);
@@ -622,6 +672,13 @@ export class ChatIfComponent implements OnInit {
       || question.includes('commandy ') || question.includes('kiomandy ') ||
       question.includes('hicommandy ')
     ) {
+      // Faire défiler vers le bas pour montrer le nouveau message
+      setTimeout(() => {
+        const chatBox = document.querySelector('.chat-messages');
+        if (chatBox) {
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }, 100);
       this.allFunction = true;
       this.isLoading = true;
       setTimeout(() => {
@@ -653,6 +710,13 @@ export class ChatIfComponent implements OnInit {
       question.includes('gamo') ||
       question.includes('gamo ')
     ) {
+      // Faire défiler vers le bas pour montrer le nouveau message
+      setTimeout(() => {
+        const chatBox = document.querySelector('.chat-messages');
+        if (chatBox) {
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }, 100);
       this.allFunction = true;
       this.isLoading = true;
       setTimeout(() => {
@@ -686,7 +750,66 @@ export class ChatIfComponent implements OnInit {
   }
 
 
-
+  // {
+  //   id: 1,
+  //   nom: "SAINTO 1.5L",
+  //   prix: 2291.66
+  // },
+  // {
+  //   id: 2,
+  //   nom: "SAINTO 1L",
+  //   prix: 1388.33
+  // },
+  // {
+  //   id: 3,
+  //   nom: "SAINTO 0.5L",
+  //   prix: 1180
+  // },
+  // {
+  //   id: 4,
+  //   nom: "SAINTO 5L",
+  //   prix: 4166.66
+  // },
+  // {
+  //   id: 5,
+  //   nom: "Bonbonne 1ère Livraison",
+  //   prix: 73333.33
+  // },
+  // {
+  //   id: 6,
+  //   nom: "Bonbonne Recharge",
+  //   prix: 30000
+  // },
+  // {
+  //   id: 7,
+  //   nom: "ICE TEA pomme 1.5L",
+  //   prix: 6805
+  // },
+  // {
+  //   id: 8,
+  //   nom: "ICE TEA pêche 1.5L",
+  //   prix: 6805
+  // },
+  // {
+  //   id: 9,
+  //   nom: "ICE TEA citron 1.5L",
+  //   prix: 6805
+  // },
+  // {
+  //   id: 10,
+  //   nom: "ICE TEA pomme 0.5L",
+  //   prix: 2916.66
+  // },
+  // {
+  //   id: 11,
+  //   nom: "ICE TEA pêche 0.5L",
+  //   prix: 2916.66
+  // },
+  // {
+  //   id: 12,
+  //   nom: "ICE TEA citron 0.5L",
+  //   prix: 2916.66
+  // },
   //commande 
   openCommandeDialog() {
     try {
@@ -701,13 +824,29 @@ export class ChatIfComponent implements OnInit {
           //transformer le tableau en texte
           let textCommande = "";
           result.forEach(element => {
-            textCommande = textCommande + element.nom + " " + element.nb + " unité(s) "
+            if (element.nom == "SAINTO 1.5L" || element.nom == "SAINTO 1L"
+              || element.nom == "SAINTO 0.5L" || element.nom == "ICE TEA pomme 1.5L"
+              || element.nom == "ICE TEA pêche 1.5L" || element.nom == "ICE TEA citron 1.5L"
+              || element.nom == "ICE TEA pomme 0.5L" || element.nom == "ICE TEA pêche 0.5L"
+              || element.nom == "ICE TEA citron 1.5L") {
+              textCommande = `${textCommande} ${element.nom} ${element.nb} pack(s), \n `
+            } else {
+              textCommande = `${textCommande} ${element.nom} ${element.nb} bouteille(s),\n`
+            }
           });
           //ajout au texte du bot
+
           this.messages.push({
-            text: `Commande de ${textCommande}`,
+            text: `Commande de \n ${textCommande}`,
             from: 'user'
           })
+          // Faire défiler vers le bas pour montrer le nouveau message
+          setTimeout(() => {
+            const chatBox = document.querySelector('.chat-messages');
+            if (chatBox) {
+              chatBox.scrollTop = chatBox.scrollHeight;
+            }
+          }, 100);
           setTimeout(() => {
             this.isLoading = false;
             this.messages.push({
@@ -715,7 +854,15 @@ export class ChatIfComponent implements OnInit {
               Autorisez-vous cela? 😊`,
               from: 'bot'
             })
+            // Faire défiler vers le bas pour montrer le nouveau message
+            setTimeout(() => {
+              const chatBox = document.querySelector('.chat-messages');
+              if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+              }
+            }, 100);
           }, 1000);
+
           this.isLoading = true;
         } else {
           setTimeout(() => {
@@ -725,6 +872,13 @@ export class ChatIfComponent implements OnInit {
               from: 'bot'
             })
           }, 1000);
+          // Faire défiler vers le bas pour montrer le nouveau message
+          setTimeout(() => {
+            const chatBox = document.querySelector('.chat-messages');
+            if (chatBox) {
+              chatBox.scrollTop = chatBox.scrollHeight;
+            }
+          }, 100);
           this.isLoading = true;
         }
       })
@@ -842,7 +996,12 @@ export class ChatIfComponent implements OnInit {
           }
         }
         resultat = true;
-        this.genererDevis(this.articleCommander, prixTotal, result[0].nom, result[0].email, result[0].adresse, result[0].num);
+        this.isLoading = true;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.genererDevis(this.articleCommander, prixTotal, result[0].nom, result[0].email, result[0].adresse, result[0].num);
+        }, 2000);
+        this.isLoading = true;
       }
       else {
         this.isLoading = true;
@@ -852,6 +1011,13 @@ export class ChatIfComponent implements OnInit {
             text: "Les informations du clients sont importants et Obligatoire chez nous avant d'éffectuer une commande 😥",
             from: 'bot'
           });
+          // Faire défiler vers le bas pour montrer le nouveau message
+          setTimeout(() => {
+            const chatBox = document.querySelector('.chat-messages');
+            if (chatBox) {
+              chatBox.scrollTop = chatBox.scrollHeight;
+            }
+          }, 100);
           this.isLoading = true;
         }, 100);
       }
@@ -863,6 +1029,7 @@ export class ChatIfComponent implements OnInit {
 
   genererDevis(produits: Array<{ nom: string, nb: number }>, prixTotalHT: number, nomClient: string, email: string, adresse: string, telephone: string) {
     // Calculer prix TTC
+
     const prixHT = prixTotalHT;
     const tva = prixHT * 0.2;
     const prixTTC = prixHT * 1.2;
@@ -981,21 +1148,33 @@ export class ChatIfComponent implements OnInit {
         text: "Votre devis a été fermé...",
         from: 'bot'
       });
-
+      // Faire défiler vers le bas pour montrer le nouveau message
+      setTimeout(() => {
+        const chatBox = document.querySelector('.chat-messages');
+        if (chatBox) {
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }, 100);
     }, 100);
 
-    this.isLoading = false;
+    this.isLoading = true;
     setTimeout(() => {
-      this.isLoading = true;
+      this.isLoading = false;
       this.messages.push({
         text: "Confirmer-vous la commande ?",
         from: 'bot'
       });
       this.isReconfirmation = true;
-
+      // Faire défiler vers le bas pour montrer le nouveau message
+      setTimeout(() => {
+        const chatBox = document.querySelector('.chat-messages');
+        if (chatBox) {
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      }, 100);
     }, 100);
 
-    this.isLoading = false;
+    this.isLoading = true;
   }
 
   reconfirmation() {
@@ -1053,7 +1232,7 @@ export class ChatIfComponent implements OnInit {
     doc.setFontSize(10);
     doc.text("Désignation", 20, 132);
     doc.text("Quantité", 90, 132);
-    doc.text("Prix unitaire HT", 120, 132);
+    doc.text("Prix unitaire HT ", 120, 132);
     doc.text("Total HT", 170, 132);
 
     // Lignes des articles
@@ -1184,7 +1363,13 @@ Adresse : ${adresse_client}`
             text: "Nous vous remercions pour votre cooperation 🫡, Au plaisir de vous revoir 😊🤩",
             from: 'bot'
           });
-
+          // Faire défiler vers le bas pour montrer le nouveau message
+          setTimeout(() => {
+            const chatBox = document.querySelector('.chat-messages');
+            if (chatBox) {
+              chatBox.scrollTop = chatBox.scrollHeight;
+            }
+          }, 100);
         }, 100);
         this.isLoading = true;
       }, (error) => {
@@ -1203,10 +1388,16 @@ Adresse : ${adresse_client}`
       setTimeout(() => {
         this.isLoading = false;
         this.messages.push({
-          text: "Catalogue fermer ... , voulez vous passer une commande ?😁",
+          text: "Catalogue fermer ... , pour passer une commande tapez commade ou cliquez le bouton en haut👆😁",
           from: 'bot'
         });
-
+        // Faire défiler vers le bas pour montrer le nouveau message
+        setTimeout(() => {
+          const chatBox = document.querySelector('.chat-messages');
+          if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }
+        }, 100);
       }, 100);
       this.isLoading = true;
     })
