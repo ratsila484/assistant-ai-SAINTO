@@ -22,73 +22,73 @@ export class AllProduitsComponent {
       id: 1,
       nom: "SAINTO 1.5L",
       prix: 2291.66,
-      img: "products/sainto1.5l.webp"
+      img: "sainto/sainto1.5l.png"
     },
     {
       id: 2,
       nom: "SAINTO 1L",
       prix: 1388.33,
-      img: "products/sainto1l.webp"
+      img: "sainto/sainto1l.png"
     },
     {
       id: 3,
       nom: "SAINTO 0.5L",
       prix: 1180,
-      img: "products/sainto0.5l.webp"
+      img: "sainto/sainto0.5l.png"
     },
     {
       id: 4,
       nom: "SAINTO 5L",
       prix: 4166.66,
-      img: ""
+      img: "sainto/sainto5l.png"
     },
     {
       id: 5,
       nom: "Bonbonne 1ère Livraison (neuve)",
       prix: 73333.33,
-      img: "products/bbn.webp"
+      img: "sainto/bbn.png"
     },
     {
       id: 6,
       nom: "Bonbonne Recharge",
       prix: 30000,
-      img: "products/bbn.webp"
+      img: "sainto/bbn.png"
     },
     {
       id: 7,
       nom: "ICE TEA pomme 1.5L",
       prix: 6805,
-      img: "products/pomme1.5l.webp"
+      img: "sainto/pomme1.5l.png"
     },
     {
       id: 8,
       nom: "ICE TEA pêche 1.5L",
       prix: 6805,
-      img: "products/peche1.5l.webp"
+      img: "sainto/peche1.5l.png"
     },
     {
       id: 9,
       nom: "ICE TEA citron 1.5L",
       prix: 6805,
-      img: "products/citron1.5l.webp"
+      img: "sainto/citron1.5l.png"
     },
     {
       id: 10,
       nom: "ICE TEA pomme 0.5L",
       prix: 2916.66,
-      img: "products/pomme0.5l.webp"
+      img: "sainto/pomme0.5l.png"
     },
     {
       id: 11,
       nom: "ICE TEA pêche 0.5L",
       prix: 2916.66,
-      img: "products/peche0.5l.webp"
+      img: "sainto/peche0.5l.png"
     },
     {
       id: 12,
       nom: "ICE TEA citron 0.5L",
       prix: 2916.66,
-      img: "products/citron0.5l.webp"
+      img: "sainto/citron0.5l.png"
     },
   ]
 
@@ -129,8 +129,8 @@ export class AllProduitsComponent {
   }
 
   pack(nom) {
-    let result:any;
-    let isDemi:boolean = false;
+    let result: any;
+    let isDemi: boolean = false;
     let nomLower = nom.toLowerCase();
     let m = nomLower.split(' ');
     if (m[m.length - 1] == "1.5l" || m[m.length - 1] == "1l") {
@@ -142,6 +142,6 @@ export class AllProduitsComponent {
     }
     // console.log(m[m.length-1])
 
-    return [result,isDemi];
+    return [result, isDemi];
   }
 }
