@@ -244,44 +244,11 @@ export class ChatIfComponent implements OnInit {
       Pour passer commande appuyer sur le bouton en 👆😊
       `, from: "bot"
     })
-    // Ajouter des écouteurs d'événements pour le scroll
-    setTimeout(() => {
-      this.setupScrollHandlers();
-      this.setupToggleButton();
-    }, 0);
-    // Ajouter la gestion de l'inactivité
-    // this.resetInactivityTimer();
-
   }
 
-  private setupScrollHandlers(): void {
-    const chatBox = this.chatBox.nativeElement;
-    const actionButtons = document.getElementById('actionButtons');
+  
 
-    chatBox.addEventListener('scroll', () => {
-      const st = chatBox.scrollTop;
 
-      // Si on défile vers le haut et que les boutons ne sont pas encore minimisés
-      if (st < this.lastScrollTop && !this.actionButtonsMinimized) {
-        actionButtons?.classList.add('minimized');
-        this.actionButtonsMinimized = true;
-      }
-
-      this.lastScrollTop = st <= 0 ? 0 : st;
-    });
-  }
-
-  private setupToggleButton(): void {
-    const actionButtons = document.getElementById('actionButtons');
-    const toggleBtn = document.querySelector('.toggle-btn') as HTMLElement;
-
-    if (toggleBtn && actionButtons) {
-      toggleBtn.addEventListener('click', () => {
-        actionButtons.classList.toggle('minimized');
-        this.actionButtonsMinimized = actionButtons.classList.contains('minimized');
-      });
-    }
-  }
 
   private scrollToBottom(): void {
     try {
@@ -537,9 +504,7 @@ export class ChatIfComponent implements OnInit {
         //ouverture d'un formulaire
         setTimeout(() => {
           this.isLoading = false;
-          if (!this.openFormulaire()) {
-          };
-
+          this.openFormulaire();
         }, 4000);
         this.isLoading = true;
 
@@ -812,7 +777,7 @@ export class ChatIfComponent implements OnInit {
   openCommandeDialog() {
     try {
       this.isReconfirmation = false;
-      const dialogRef = this.dialog.open(CommandDialogComponent,{
+      const dialogRef = this.dialog.open(CommandDialogComponent, {
         disableClose: true
       });
       //recuperer la valeur du dialog
@@ -1010,7 +975,7 @@ export class ChatIfComponent implements OnInit {
         setTimeout(() => {
           this.isLoading = false;
           this.messages.push({
-            text: "Les informations du clients sont importants et Obligatoire chez nous avant d'éffectuer une commande 😥",
+            text: "Tous les informations demandées sont obligatoires ",
             from: 'bot'
           });
           // Faire défiler vers le bas pour montrer le nouveau message
@@ -1020,10 +985,10 @@ export class ChatIfComponent implements OnInit {
               chatBox.scrollTop = chatBox.scrollHeight;
             }
           }, 100);
-          this.isLoading = true;
         }, 100);
       }
     })
+    this.isLoading = true;
     return resultat;
 
   }
