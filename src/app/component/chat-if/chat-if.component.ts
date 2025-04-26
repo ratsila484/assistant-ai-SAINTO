@@ -1362,7 +1362,10 @@ Adresse : ${adresse_client}`
         setTimeout(() => {
           this.isLoading = false;
           this.messages.push({
-            text: "Nous vous remercions pour votre cooperation 🫡, Au plaisir de vous revoir 😊🤩",
+            text: `Votre commande a été enregistrer avec succès 🫡,  \n
+              Nous vous contacterons par appel le ${this.getEstimationLivraison()} pour la livraison\n
+              Au plaisir de vous revoir 😊🤩 \n
+              📞 Numero de tel de notre société : 034 96 883 96`,
             from: 'bot'
           });
           // Faire défiler vers le bas pour montrer le nouveau message
