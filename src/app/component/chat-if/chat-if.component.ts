@@ -35,7 +35,7 @@ export class ChatIfComponent implements OnInit {
   infoClient: any[] = [];
   totalPrix: number = 0;
   allFunction: boolean = false;
-
+  formulaireClosed: boolean = false;
   @ViewChild('chatBox') private chatBox!: ElementRef;
   //historiques commande
   historiqueCommandes: any[] = [];
@@ -246,7 +246,7 @@ export class ChatIfComponent implements OnInit {
     })
   }
 
-  
+
 
 
 
@@ -483,6 +483,7 @@ export class ChatIfComponent implements OnInit {
         userQuestion.toLowerCase() == "eny tompoko "
       ) {
         // Faire défiler vers le bas pour montrer le nouveau message
+
         setTimeout(() => {
           const chatBox = document.querySelector('.chat-messages');
           if (chatBox) {
@@ -526,6 +527,11 @@ export class ChatIfComponent implements OnInit {
           this.addBotMessage(`Ok , nous vous remerçions d'être passer chez nous 😊`);
         }, 1000);
         this.isLoading = true;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.addBotMessage("Notre boutique principale est située à Ampasampito, Antananarivo. Vous pouvez nous contacter au +261 34 96 883 96 pour plus de détails.");
+        }, 1500);
+        this.isLoading = true;
       } else if (userQuestion.toLowerCase() == "état de commande" ||
         userQuestion.toLowerCase() == "precedent commande"
         || userQuestion.toLowerCase() == "mes commandes") {
@@ -545,6 +551,36 @@ export class ChatIfComponent implements OnInit {
       }, 1000);
       this.isLoading = true;
     }
+
+    // if (this.formulaireClosed) {
+    //   if (
+    //     userQuestion.toLowerCase() == "oui" ||
+    //     userQuestion.toLowerCase() == "yes" ||
+    //     userQuestion.toLowerCase() == "ok" ||
+    //     userQuestion.toLowerCase() == "vas-y" ||
+    //     userQuestion.toLowerCase() == "vas y" ||
+    //     userQuestion.toLowerCase() == "go" ||
+    //     userQuestion.toLowerCase() == "eny" ||
+    //     userQuestion.toLowerCase() == "ie" ||
+    //     userQuestion.toLowerCase() == "ekena" ||
+    //     userQuestion.toLowerCase() == "right" ||
+    //     userQuestion.toLowerCase() == "oki"
+    //   ) {
+    //     setTimeout(() => {
+    //       const chatBox = document.querySelector('.chat-messages');
+    //       if (chatBox) {
+    //         chatBox.scrollTop = chatBox.scrollHeight;
+    //       }
+    //     }, 100);
+    //     setTimeout(() => {
+    //       this.isLoading = false;
+    //       if (this.openFormulaire()) {
+
+    //       }
+    //     }, 4000);
+    //     this.isLoading = true;
+    //   }
+    // }
   }
 
   // Nouvelle méthode pour traiter les questions fréquentes
@@ -713,67 +749,7 @@ export class ChatIfComponent implements OnInit {
   }
 
 
-  // {
-  //   id: 1,
-  //   nom: "SAINTO 1.5L",
-  //   prix: 2291.66
-  // },
-  // {
-  //   id: 2,
-  //   nom: "SAINTO 1L",
-  //   prix: 1388.33
-  // },
-  // {
-  //   id: 3,
-  //   nom: "SAINTO 0.5L",
-  //   prix: 1180
-  // },
-  // {
-  //   id: 4,
-  //   nom: "SAINTO 5L",
-  //   prix: 4166.66
-  // },
-  // {
-  //   id: 5,
-  //   nom: "Bonbonne 1ère Livraison",
-  //   prix: 73333.33
-  // },
-  // {
-  //   id: 6,
-  //   nom: "Bonbonne Recharge",
-  //   prix: 30000
-  // },
-  // {
-  //   id: 7,
-  //   nom: "ICE TEA pomme 1.5L",
-  //   prix: 6805
-  // },
-  // {
-  //   id: 8,
-  //   nom: "ICE TEA pêche 1.5L",
-  //   prix: 6805
-  // },
-  // {
-  //   id: 9,
-  //   nom: "ICE TEA citron 1.5L",
-  //   prix: 6805
-  // },
-  // {
-  //   id: 10,
-  //   nom: "ICE TEA pomme 0.5L",
-  //   prix: 2916.66
-  // },
-  // {
-  //   id: 11,
-  //   nom: "ICE TEA pêche 0.5L",
-  //   prix: 2916.66
-  // },
-  // {
-  //   id: 12,
-  //   nom: "ICE TEA citron 0.5L",
-  //   prix: 2916.66
-  // },
-  //commande 
+
   openCommandeDialog() {
     try {
       this.isReconfirmation = false;
@@ -947,6 +923,7 @@ export class ChatIfComponent implements OnInit {
   }
 
   openFormulaire() {
+    this.formulaireClosed = false;
     let resultat = false;
     const dialogRef = this.dialog.open(FormulaireDialogComponent, {
       disableClose: true
@@ -979,12 +956,30 @@ export class ChatIfComponent implements OnInit {
             from: 'bot'
           });
           // Faire défiler vers le bas pour montrer le nouveau message
+          this.formulaireClosed = true;
           setTimeout(() => {
             const chatBox = document.querySelector('.chat-messages');
             if (chatBox) {
               chatBox.scrollTop = chatBox.scrollHeight;
             }
           }, 100);
+        }, 100);
+        setTimeout(() => {
+          this.isLoading = false;
+          this.messages.push({
+            text: "Voulez vous réeouvrire la demande d'information ? ",
+            from: 'bot'
+          });
+          // Faire défiler vers le bas pour montrer le nouveau message
+          setTimeout(() => {
+            const chatBox = document.querySelector('.chat-messages');
+            if (chatBox) {
+              chatBox.scrollTop = chatBox.scrollHeight;
+            }
+          }, 100);
+
+          //reponse du client 
+
         }, 100);
       }
     })
@@ -1330,7 +1325,7 @@ Adresse : ${adresse_client}`
             text: `Votre commande a été enregistrer avec succès 🫡,  \n
               Nous vous contacterons par appel le ${this.getEstimationLivraison()} pour la livraison\n
               Au plaisir de vous revoir 😊🤩 \n
-              📞 Numero de tel de notre société : 034 96 883 96`,
+              📞 Numero de tel du commerciale : 034 96 883 96`,
             from: 'bot'
           });
           // Faire défiler vers le bas pour montrer le nouveau message
@@ -1344,6 +1339,24 @@ Adresse : ${adresse_client}`
         this.isLoading = true;
       }, (error) => {
         console.error('Erreur lors de l\'envoi de l\'email ❌ : ', error);
+        this.isLoading = true;
+        setTimeout(() => {
+          this.isLoading = false;
+          this.messages.push({
+            text: `Votre commande n'a pas pu être envoyer pour des raisons , soit : \n
+              - de connexion internet \n
+              - de erreur interne du serveur \n
+              Nous vous prions de contacter ce numero pour plus d'information 034 96 883 96 pour plus de détails `,
+            from: 'bot'
+          });
+          // Faire défiler vers le bas pour montrer le nouveau message
+          setTimeout(() => {
+            const chatBox = document.querySelector('.chat-messages');
+            if (chatBox) {
+              chatBox.scrollTop = chatBox.scrollHeight;
+            }
+          }, 100);
+        }, 100);
       });
 
     return true;
