@@ -19,9 +19,7 @@
         <button class="action-btn" (click)="handleQuickAction('produits')">Nos produits</button>
         <!-- <button class="action-btn" (click)="handleQuickAction('find')">Trouver un produit</button> -->
         <!-- Ajout d'un bouton pour l'état minimisé -->
-
     </div>
-
     <div #chatBox class="chat-messages">
         @for (message of messages; track $index) {
         <div class="message" [ngClass]="message.from">
